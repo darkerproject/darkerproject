@@ -359,8 +359,8 @@ body {
   /* Push fixtures down slightly so they don't crowd the header */
   /* Push fixtures down — offset the canvases directly since they're absolute */
   #sticky { padding-top: 0; }
-  #three-canvas { top: 12px !important; }
-  #beam-canvas  { top: 12px !important; }
+  #three-canvas { top: -10px !important; }
+  #beam-canvas  { top: -10px !important; }
 
   /* Smaller hamburger */
   #hamburger { width: 22px; height: 15px; }
@@ -730,7 +730,7 @@ function setSize() {
   camera.aspect = w / h;
   // On mobile pull camera back so all fixtures fit and no zoom artifact
   if (w < 768) {
-    camera.position.z = 11;
+    camera.position.z = 10;
     camera.fov = 48;
   } else {
     camera.position.z = 9;
@@ -908,7 +908,7 @@ function updateScene(p) {
   // Rotation curve: still 0→35%, starts at 35%, halfway at 75%, fully forward at 100%
   // Power 1.5 gives a slow start that matches "barely lifting" at 35-55 and ~50% at p=0.75
   var rotT = Math.pow(clamp((p - 0.25) / (0.90 - 0.25), 0, 1), 1.5);
-  var tiltMax = window.innerWidth < 768 ? 0.18 : 0.45;
+  var tiltMax = window.innerWidth < 768 ? 0 : 0.45;
   var forwardTilt = -Math.PI * tiltMax * rotT;
   fixtures.forEach(function(fx, i) {
     fx.housing.rotation.x = forwardTilt;
