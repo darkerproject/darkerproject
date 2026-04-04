@@ -525,7 +525,11 @@ navOverlay.querySelectorAll('a').forEach(function(a) {
 
 var beamCanvas = document.getElementById('beam-canvas');
 var bctx = beamCanvas.getContext('2d');
-function resizeBC() { beamCanvas.width = window.innerWidth; beamCanvas.height = window.innerHeight; }
+function resizeBC() {
+  beamCanvas.width  = window.innerWidth;
+  // On mobile extend canvas below viewport so beams fill the full screen
+  beamCanvas.height = window.innerWidth < 768 ? window.innerHeight * 1.5 : window.innerHeight;
+}
 resizeBC();
 
 function drawBeam(tipX, tipY, angleDeg, halfAngle, opacity) {
@@ -533,7 +537,7 @@ function drawBeam(tipX, tipY, angleDeg, halfAngle, opacity) {
   var W = beamCanvas.width, H = beamCanvas.height;
   var aRad = angleDeg * Math.PI / 180;
   var dx = Math.sin(aRad), dy = Math.cos(aRad);
-  var len = Math.max(W, H) * 1.8;
+  var len = Math.max(W, H) * (window.innerWidth < 768 ? 2.8 : 1.8);
   var hw  = Math.tan(halfAngle * Math.PI / 180) * len;
   var px = -dy, py = dx;
   bctx.save();
