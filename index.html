@@ -95,6 +95,17 @@ body {
   height: 100vh; overflow: hidden;
 }
 
+/* White strip that covers ONLY the bottom safe area — always white, above the black bg */
+#sticky::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: env(safe-area-inset-bottom);
+  background: #fff;
+  z-index: 10;
+  pointer-events: none;
+}
+
 #sticky-bg {
   position: absolute; inset: 0;
   background: #000; z-index: 0;
