@@ -359,8 +359,8 @@ body {
   /* Push fixtures down slightly so they don't crowd the header */
   /* Push fixtures down — offset the canvases directly since they're absolute */
   #sticky { padding-top: 0; }
-  #three-canvas { top: 56px !important; }
-  #beam-canvas  { top: 56px !important; }
+  #three-canvas { top: 28px !important; }
+  #beam-canvas  { top: 28px !important; }
 
   /* Smaller hamburger */
   #hamburger { width: 22px; height: 15px; }
@@ -728,6 +728,14 @@ function setSize() {
   var w = window.innerWidth, h = window.innerHeight;
   renderer.setSize(w, h);
   camera.aspect = w / h;
+  // On mobile pull camera back so all fixtures fit and no zoom artifact
+  if (w < 768) {
+    camera.position.z = 14;
+    camera.fov = 48;
+  } else {
+    camera.position.z = 9;
+    camera.fov = 45;
+  }
   camera.updateProjectionMatrix();
 }
 setSize();
