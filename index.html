@@ -720,8 +720,10 @@ function updateScene(p) {
   } else {
     // Custom curve: fast to 45% then crawls
     var sf;
-    if (sceneFade < 0.1) {
-      sf = (sceneFade / 0.1) * 0.45;
+    if (sceneFade < 0.05) {
+      sf = (sceneFade / 0.05) * 0.35;
+    } else if (sceneFade < 0.1) {
+      sf = 0.35 + ((sceneFade - 0.05) / 0.05) * 0.10;
     } else if (sceneFade < 0.3) {
       sf = 0.45 + ((sceneFade - 0.1) / 0.2) * 0.10;
     } else if (sceneFade < 0.5) {
