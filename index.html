@@ -718,7 +718,7 @@ function updateScene(p) {
   } else if (sceneFade >= 0.999) {
     scrollScene.style.background = '#fff';
   } else {
-    var sf = Math.pow(sceneFade, 0.45); // fast early growth, slows down later
+    var sf = Math.pow(sceneFade, 0.35); // 10% progress → 45% size, then decelerates hard
     var rx = 60 + sf * 140;
     var ry = 30 + sf * 120;
     var whiteCore = sf * 55;
