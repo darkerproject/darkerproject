@@ -357,8 +357,9 @@ body {
   #header.lit #hamburger span { background: #000 !important; }
 
   /* Push fixtures down slightly so they don't crowd the header */
-  /* Push fixtures down — offset the canvases directly since they're absolute */
-  #sticky { padding-top: 0; }
+  /* Fix mobile viewport jump — browser chrome hide/show changes 100vh */
+  #sticky { height: 100svh; }
+  #scroll-scene { height: 500svh; }
   #three-canvas { top: -10px !important; }
   #beam-canvas  { top: -10px !important; }
 
@@ -739,7 +740,11 @@ function setSize() {
   camera.updateProjectionMatrix();
 }
 setSize();
-window.addEventListener('resize', function() { setSize(); resizeBC(); });
+window.addEventListener('resize', function() {
+  // On mobile, ignore resize events caused by browser chrome show/hide
+  if (window.innerWidth < 768) return;
+  setSize(); resizeBC();
+});
 
 function M(hex, metal, rough) {
   return new THREE.MeshStandardMaterial({ color: hex, metalness: metal, roughness: rough });
