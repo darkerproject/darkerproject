@@ -245,57 +245,62 @@ body {
 #nav-overlay.open { background: transparent; }
 #nav-overlay .nav-links a { color: #000; transition: color 0.2s ease, opacity 0.35s ease, transform 0.35s cubic-bezier(0.23,1,0.32,1); }
 
+/* #mc only exists for mobile — hidden on desktop */
+#mc { display: none; }
+
 /* ── MOBILE ── */
 @media (max-width: 768px) {
   #header { padding: 0 20px; }
   #gallery { grid-template-columns: repeat(2, 1fr); gap: 2px; }
   #lightbox-prev, #lightbox-next { display: none; }
 
-  /* Smaller hamburger — same proportions, just scaled down */
   #hamburger { width: 22px; height: 15px; }
   #hamburger span { height: 1.5px; }
 
-  /* Hide desktop nav on mobile */
   #nav-overlay { display: none !important; }
 
-  /* Mobile carousel */
+  /* Mobile carousel — centered block in the middle of the header */
   #mc {
+    display: flex;
     position: fixed; top: 0; z-index: 101;
-    left: 48px; right: 48px; height: 64px;
-    display: flex; align-items: center;
-    gap: 4px;
+    left: 50%; transform: translateX(-50%);
+    height: 64px;
+    align-items: center;
+    gap: 10px;
     opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease;
+    white-space: nowrap;
   }
   #mc.open { opacity: 1; pointer-events: all; }
 
   .mc-arrow {
-    font-size: 22px; font-weight: 300; line-height: 1;
-    color: #888;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
     cursor: pointer; user-select: none; flex-shrink: 0;
-    padding: 4px 2px;
+    opacity: 0.45;
     transition: opacity 0.15s ease;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
-  .mc-arrow:active { opacity: 0.4; }
+  .mc-arrow:active { opacity: 0.2; }
+  .mc-arrow svg { width: 10px; height: 16px; stroke: #555; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
   #mc-clip {
-    flex: 1; height: 64px;
+    height: 64px; width: 120px;
     overflow: hidden; position: relative;
     display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
   }
   #mc-clip::before, #mc-clip::after {
     content: ''; position: absolute; top: 0; bottom: 0;
-    width: 16px; z-index: 2; pointer-events: none;
+    width: 14px; z-index: 2; pointer-events: none;
   }
   #mc-clip::before { left:  0; background: linear-gradient(to right, var(--mc-fade,#fff), transparent); }
   #mc-clip::after  { right: 0; background: linear-gradient(to left,  var(--mc-fade,#fff), transparent); }
 
   .mc-lbl {
     position: absolute;
-    font: 500 15px/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font: 500 14px/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: var(--mc-color, #111);
-    text-decoration: none; white-space: nowrap; letter-spacing: -0.2px;
+    text-decoration: none; white-space: nowrap; letter-spacing: -0.1px;
     will-change: transform, opacity;
   }
 }
@@ -322,9 +327,13 @@ body {
 
 <!-- Mobile infinite carousel (only active on mobile) -->
 <div id="mc" style="--mc-color:#111; --mc-fade:#fff;">
-  <span class="mc-arrow mc-prev">&#8249;</span>
+  <span class="mc-arrow mc-prev">
+    <svg viewBox="0 0 8 14"><path d="M6 1 L2 7 L6 13" stroke="#666" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </span>
   <div id="mc-clip"></div>
-  <span class="mc-arrow mc-next">&#8250;</span>
+  <span class="mc-arrow mc-next">
+    <svg viewBox="0 0 8 14"><path d="M2 1 L6 7 L2 13" stroke="#666" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </span>
 </div>
 
 <section id="hero"><h1>Studio</h1></section>
