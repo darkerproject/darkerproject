@@ -357,7 +357,10 @@ body {
   #header.lit #hamburger span { background: #000 !important; }
 
   /* Push fixtures down slightly so they don't crowd the header */
-  #sticky { padding-top: 56px; }
+  /* Push fixtures down — offset the canvases directly since they're absolute */
+  #sticky { padding-top: 0; }
+  #three-canvas { top: 56px !important; }
+  #beam-canvas  { top: 56px !important; }
 
   /* Smaller hamburger */
   #hamburger { width: 22px; height: 15px; }
