@@ -108,6 +108,15 @@ body {
   background: #fff; opacity: 0;
   z-index: 2; pointer-events: none;
 }
+#light-pool {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 40%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse 30% 40% at 50% 0%, rgba(200,200,200,0.8) 0%, rgba(255,255,255,0) 100%);
+}
 #three-canvas {
   position: absolute; top: 0; left: 0;
   z-index: 3; display: block;
@@ -375,6 +384,7 @@ body {
     <div id="sticky-bg"></div>
     <canvas id="beam-canvas"></canvas>
     <div id="white-bg"></div>
+    <div id="light-pool"></div>
     <canvas id="three-canvas"></canvas>
     <div id="title">
       <h1>Darker Project</h1>
@@ -657,6 +667,7 @@ var rC = new THREE.DirectionalLight(0x445577, 0.25); rC.position.set(0,-5,3); sc
 var scrollScene = document.getElementById('scroll-scene');
 var whiteBg     = document.getElementById('white-bg');
 var stickyBg    = document.getElementById('sticky-bg');
+var lightPool   = document.getElementById('light-pool');
 var titleH1     = document.querySelector('#title h1');
 var titleP      = document.querySelector('#title p');
 var titleEl     = document.getElementById('title');
@@ -711,23 +722,22 @@ function updateScene(p) {
   whiteBg.style.opacity = maxWhite;
   stickyBg.style.opacity = 1 - maxWhite;
 
-  // Sync scroll-scene: radial circle synced with beam expansion timing
+  // Light pool inside sticky — synced with beam expansion
   var beamExpand = eio(map(p, 0.02, 0.68, 0, 1));
-  var sceneFade = avgLight * beamExpand; // tied to actual light intensity × beam spread
-  if (sceneFade <= 0.001) {
-    scrollScene.style.background = '#000';
-  } else if (sceneFade >= 0.999) {
-    scrollScene.style.background = '#fff';
-  } else {
-    var sf2 = Math.pow(sceneFade, 1.4);
-    var rx = 8 + Math.pow(sceneFade, 2.2) * 192;  // horizontal grows slow
-    var ry = 4 + sf2 * 146;                         // vertical drops fast
-    var whiteCore = sf2 * 70;
-    var fadeEdge = whiteCore + 8 + (1 - sceneFade) * 8;
-    var coreVal = Math.round(140 + sceneFade * 115); // 140 (gray) → 255 (white)
+  var poolT = avgLight * beamExpand;
+  if (poolT > 0.01) {
+    var pRx = 15 + Math.pow(poolT, 1.6) * 185;
+    var pRy = 10 + Math.pow(poolT, 1.2) * 90;
+    var coreVal = Math.round(160 + poolT * 95);
     var coreColor = 'rgb(' + coreVal + ',' + coreVal + ',' + coreVal + ')';
-    scrollScene.style.background = 'radial-gradient(ellipse ' + rx + '% ' + ry + '% at 50% 0%, ' + coreColor + ' ' + whiteCore + '%, rgba(255,255,255,0.06) ' + (whiteCore + 6) + '%, #000 ' + Math.min(fadeEdge, 100) + '%)';
+    lightPool.style.opacity = poolT;
+    lightPool.style.background = 'radial-gradient(ellipse ' + pRx + '% ' + pRy + '% at 50% 0%, ' + coreColor + ' 0%, rgba(255,255,255,0) 100%)';
+  } else {
+    lightPool.style.opacity = 0;
   }
+
+  // Scroll-scene: simple black to white sync
+  scrollScene.style.background = maxWhite > 0.4 ? '#fff' : '#000';
 
   var fixOpacity = clamp(1 - eio(map(p, 0.40, 0.75, 0, 1)), 0, 1);
   threeCanvas.style.opacity = fixOpacity;
