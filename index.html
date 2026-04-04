@@ -88,7 +88,7 @@ body {
 #nav-overlay.open .nav-links a:nth-child(4) { transition-delay:.15s; }
 #nav-overlay.open .nav-links a:nth-child(5) { transition-delay:.19s; }
 
-#scroll-scene { height: 300svh; position: relative; background: #fff; }
+#scroll-scene { height: 300svh; position: relative; background: #000; }
 #sticky {
   position: sticky; top: 0;
   height: 100vh; overflow: hidden;
@@ -710,6 +710,9 @@ function updateScene(p) {
   var maxWhite = eio(map(p, 0.34, 0.72, 0, 1));
   whiteBg.style.opacity = maxWhite;
   stickyBg.style.opacity = 1 - maxWhite;
+
+  // Sync scroll-scene background: black at start, white when transition completes
+  scrollScene.style.background = maxWhite > 0.5 ? '#fff' : '#000';
 
   var fixOpacity = clamp(1 - eio(map(p, 0.40, 0.75, 0, 1)), 0, 1);
   threeCanvas.style.opacity = fixOpacity;
