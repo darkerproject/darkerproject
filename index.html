@@ -42,15 +42,10 @@ body {
 }
 .logo.dark { color: #000; }
 #logo-img {
-  height: 34px;
-  width: auto;
-  display: block;
-  /* White logo on transparent bg — visible on dark background */
+  height: 34px; width: auto; display: block;
   transition: filter 0.4s ease;
 }
-.logo.dark #logo-img {
-  filter: invert(1); /* flip to black on white background */
-}
+.logo.dark #logo-img { filter: invert(1); }
 #hamburger {
   background: none; border: none; cursor: pointer;
   width: 34px; height: 22px;
@@ -69,31 +64,13 @@ body {
 #hamburger.open span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
 
 #nav-overlay {
-  position: fixed;
-  top: 0;
-  height: 64px;
-  right: 110px;
-  z-index: 101;
-  display: flex;
-  align-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(10px);
-  transition: opacity 0.35s cubic-bezier(0.23,1,0.32,1),
-              transform 0.35s cubic-bezier(0.23,1,0.32,1);
+  position: fixed; top: 0; height: 64px; right: 110px; z-index: 101;
+  display: flex; align-items: center;
+  opacity: 0; pointer-events: none; transform: translateX(10px);
+  transition: opacity 0.35s cubic-bezier(0.23,1,0.32,1), transform 0.35s cubic-bezier(0.23,1,0.32,1);
 }
-#nav-overlay.open {
-  opacity: 1;
-  pointer-events: all;
-  transform: translateX(0);
-}
-.nav-links {
-  display: flex;
-  flex-direction: row;
-  gap: 32px;
-  align-items: center;
-  background: transparent;
-}
+#nav-overlay.open { opacity: 1; pointer-events: all; transform: translateX(0); }
+.nav-links { display: flex; flex-direction: row; gap: 32px; align-items: center; background: transparent; }
 .nav-links a {
   font-size: 14px; font-weight: 400; color: #fff;
   text-decoration: none; letter-spacing: 0.01em;
@@ -101,7 +78,6 @@ body {
   transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.23,1,0.32,1), color 0.2s;
   white-space: nowrap;
 }
-.nav-links a { color: #fff; }
 .nav-links a.dark-link { color: #000; }
 #nav-overlay.open .nav-links a              { opacity:1; transform:translateX(0); }
 #nav-overlay.open .nav-links a:nth-child(1) { transition-delay:.03s; }
@@ -114,15 +90,15 @@ body {
 #sticky {
   position: sticky; top: 0;
   height: 100vh; overflow: hidden;
-  background: #000;
+  /* NO background here — body white shows through to safe areas */
 }
 
-/* ── LAYER ORDER ──────────────────────────────────────
-   z:1  beam-canvas  — triangular light shafts
-   z:2  white-bg     — sits ABOVE beams, so full opacity = beams gone completely ✓
-   z:3  three-canvas — fixtures, fade out with white
-   z:4  title        — always on top
-*/
+/* Black background lives inside sticky, not on sticky itself */
+#sticky-bg {
+  position: absolute; inset: 0;
+  background: #000; z-index: 0;
+}
+
 #beam-canvas {
   position: absolute; top: 0; left: 0;
   z-index: 1; display: block; pointer-events: none;
@@ -170,16 +146,14 @@ body {
 }
 #social-pill a {
   display: flex; align-items: center; justify-content: center;
-  text-decoration: none; opacity: 0.9;
+  text-decoration: none; opacity: 0.9; padding: 2px;
   transition: opacity 0.2s ease;
 }
 #social-pill a:hover { opacity: 0.6; }
 #social-pill svg {
   width: 18px; height: 18px; fill: #3a3a3a; display: block;
-  overflow: visible;
-  flex-shrink: 0;
+  overflow: visible; flex-shrink: 0;
 }
-#social-pill a { padding: 2px; }
 @media (max-width: 768px) {
   #social-pill { gap: 28px !important; padding: 12px 28px !important; }
   #social-pill svg { width: 16px; height: 16px; }
@@ -189,7 +163,7 @@ body {
   font-weight: 700;
   font-size: clamp(42px, 7.5vw, 96px);
   letter-spacing: -2.5px; color: #fff; line-height: 0.93;
-  transition: color 0.4s ease;
+  transition: color 0.5s ease;
 }
 #title p {
   font-weight: 400;
@@ -200,10 +174,8 @@ body {
 #below {
   background: #fff;
   padding: 90px 80px 0;
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
 }
-
 .cat-section {
   max-width: 100%;
   display: grid;
@@ -211,166 +183,73 @@ body {
   grid-template-rows: auto 1fr;
   column-gap: 70px;
 }
-
-.cat-label {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.cat-list {
-  grid-column: 1;
-  grid-row: 2;
-}
-
+.cat-label { grid-column: 1; grid-row: 1; }
+.cat-list  { grid-column: 1; grid-row: 2; }
 .cat-img-panel {
-  grid-column: 2;
-  grid-row: 2;
-  position: relative;
-  overflow: hidden;
-  border-radius: 12px;
-  align-self: stretch;
+  grid-column: 2; grid-row: 2;
+  position: relative; overflow: hidden;
+  border-radius: 12px; align-self: stretch;
 }
-
 .cat-img-slot {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center center;
-  opacity: 0;
-  transition: opacity 0.45s cubic-bezier(0.23, 1, 0.32, 1);
-  image-rendering: smooth;
-  image-rendering: -webkit-optimize-contrast;
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: 0; transition: opacity 0.45s cubic-bezier(0.23,1,0.32,1);
 }
 .cat-img-slot.active { opacity: 1; }
-
-.cat-img-slot {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 0.45s cubic-bezier(0.23, 1, 0.32, 1);
-}
-.cat-img-slot.active { opacity: 1; }
-
 .cat-label {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: #aaa;
-  text-transform: uppercase;
-  margin: 0 0 56px;
+  font-size: 11px; letter-spacing: 0.18em; color: #aaa;
+  text-transform: uppercase; margin: 0 0 56px;
 }
-
 .cat-list { display: flex; flex-direction: column; }
-
 .cat-item {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 30px 0;
-  border-bottom: 0.5px solid #e8e8e8;
-  text-decoration: none;
-  cursor: pointer;
-  opacity: 0;
-  transform: translateY(20px);
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 30px 0; border-bottom: 0.5px solid #e8e8e8;
+  text-decoration: none; cursor: pointer;
+  opacity: 0; transform: translateY(20px);
   transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1);
 }
 .cat-item:first-child { border-top: 0.5px solid #e8e8e8; }
 .cat-item.visible { opacity: 1; transform: translateY(0); }
-
-.cat-left {
-  display: flex;
-  align-items: baseline;
-  gap: 28px;
-}
-
+.cat-left { display: flex; align-items: baseline; gap: 28px; }
 .cat-num {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  color: #ccc;
-  transition: color 0.25s ease;
-  min-width: 20px;
+  font-size: 12px; letter-spacing: 0.1em; color: #ccc;
+  transition: color 0.25s ease; min-width: 20px;
 }
-
 .cat-name {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: clamp(32px, 5vw, 58px);
-  font-weight: 700;
-  letter-spacing: -2px;
-  color: #111;
+  font-size: clamp(32px, 5vw, 58px); font-weight: 700;
+  letter-spacing: -2px; color: #111;
   transition: transform 0.35s cubic-bezier(0.23,1,0.32,1);
   display: inline-block;
 }
-
-.cat-arrow {
-  font-size: 22px;
-  color: #111;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
+.cat-arrow { font-size: 22px; color: #111; opacity: 0; transition: opacity 0.25s ease; }
 .cat-item:hover .cat-num   { color: #111; }
 .cat-item:hover .cat-name  { transform: translateX(8px); }
 .cat-item:hover .cat-arrow { opacity: 1; }
-
-/* stagger */
 .cat-item:nth-child(1) { transition-delay: 0.05s; }
 .cat-item:nth-child(2) { transition-delay: 0.12s; }
 .cat-item:nth-child(3) { transition-delay: 0.19s; }
-#spotify-block {
-  background: #fff;
-  padding: 90px 80px 120px;
-}
-/* ── FOOTER ── */
-#footer {
-  background: #eceef0;
-  padding: 48px 60px 32px;
-  text-align: center;
-}
-.footer-socials {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 28px;
-  margin-bottom: 28px;
-}
+#spotify-block { background: #fff; padding: 90px 80px 120px; }
+#footer { background: #eceef0; padding: 48px 60px 32px; text-align: center; }
+.footer-socials { display: flex; justify-content: center; align-items: center; gap: 28px; margin-bottom: 28px; }
 .footer-socials a { color: #777; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; transition: opacity 0.2s ease; display: flex; align-items: center; }
 .footer-socials a:hover { opacity: 0.4; }
 .footer-socials svg { width: 20px; height: 20px; fill: #777; }
-.footer-links {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px 32px;
-  margin-bottom: 20px;
-}
+.footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 32px; margin-bottom: 20px; }
 .footer-links a {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: none;
-  color: #111;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
+  font-size: 10px; letter-spacing: 0.12em; text-transform: none;
+  color: #111; text-decoration: none; transition: opacity 0.2s ease;
 }
 .footer-links a:hover { opacity: 0.4; }
-.footer-copy {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.02em;
-  color: #777;
-  text-transform: none;
-}
-/* ══════════════════════════════
-/* #mc hidden on desktop */
+.footer-copy { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; letter-spacing: 0.02em; color: #777; text-transform: none; }
+
 #mc { display: none; }
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {
-
-  /* ── Header ── */
   #header {
     padding: 0 20px; height: 64px;
     background: rgba(255,255,255,0.07);
@@ -383,7 +262,6 @@ body {
       0 4px 24px rgba(0,0,0,0.08);
     transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
   }
-  /* Light glass when page turns white */
   #header.lit {
     background: rgba(255,255,255,0.6);
     border-bottom-color: rgba(255,255,255,0.5);
@@ -392,29 +270,23 @@ body {
       0 1px 0 rgba(0,0,0,0.04),
       0 4px 24px rgba(0,0,0,0.05);
   }
-  /* Logo/hamburger white on dark, black on light */
   #logo-img { filter: brightness(0) invert(1) !important; }
   #hamburger span { background: #fff !important; }
   #header.lit #logo-img { filter: brightness(0) !important; }
   #header.lit #hamburger span { background: #000 !important; }
 
-  /* Push fixtures down slightly so they don't crowd the header */
-  /* Fix mobile viewport jump — browser chrome hide/show changes 100vh */
   #sticky { height: 100svh; }
   #scroll-scene { height: 500svh; }
   #three-canvas { top: -24px !important; }
   #beam-canvas  { top: -24px !important; }
 
-  /* Smaller hamburger */
   #hamburger { width: 22px; height: 15px; }
   #hamburger span { height: 1.5px; }
   #hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   #hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-  /* Hide desktop nav */
   #nav-overlay { display: none !important; }
 
-  /* Mobile carousel */
   #mc {
     display: flex; position: fixed; top: 0; z-index: 101;
     left: 50%; transform: translateX(-50%);
@@ -443,16 +315,13 @@ body {
     will-change: transform, opacity;
   }
 
-  /* ── Nav overlay: vertical stack on mobile ── */
   #nav-overlay { top: 0; right: 20px; height: 56px; align-items: center; }
   .nav-links { gap: 20px; }
   .nav-links a { font-size: 13px; }
 
-  /* ── Hero title ── */
   #title h1 { font-size: clamp(32px, 9vw, 52px); letter-spacing: -1.5px; }
   #title p  { font-size: 9px; letter-spacing: 0.16em; margin-top: 12px; }
 
-  /* ── Categories section ── */
   #below { padding: 60px 24px 60px; }
   .cat-section { display: block; }
   .cat-img-panel { display: none; }
@@ -460,16 +329,13 @@ body {
   .cat-name { font-size: clamp(28px, 8vw, 42px); letter-spacing: -1px; }
   .cat-item { padding: 20px 0; }
 
-  /* ── Spotify block ── */
   #spotify-block { padding: 50px 24px 70px; }
   #spotify-block iframe { height: 460px; border-radius: 12px; }
 
-  /* ── Footer ── */
   #footer { padding: 40px 24px 28px; }
   .footer-socials { gap: 20px; flex-wrap: wrap; }
   .footer-socials svg { width: 20px; height: 20px; }
   .footer-links { gap: 8px 20px; flex-wrap: wrap; justify-content: center; }
-
 }
 </style>
 </head>
@@ -494,7 +360,6 @@ body {
   </div>
 </nav>
 
-<!-- Mobile carousel -->
 <div id="mc" style="--mc-color:#111;">
   <span class="mc-arrow mc-prev">
     <svg viewBox="0 0 8 14"><path d="M6 1 L2 7 L6 13" stroke="#666" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -507,6 +372,7 @@ body {
 
 <div id="scroll-scene">
   <div id="sticky">
+    <div id="sticky-bg"></div>
     <canvas id="beam-canvas"></canvas>
     <div id="white-bg"></div>
     <canvas id="three-canvas"></canvas>
@@ -525,114 +391,55 @@ body {
     </div>
   </div>
 </div>
+
 <div id="below">
   <div class="cat-section">
     <p class="cat-label">Lo que hacemos</p>
     <div class="cat-list">
-
       <a href="studio.html" class="cat-item" data-img="0">
-        <div class="cat-left">
-          <span class="cat-num">01</span>
-          <span class="cat-name">Studio</span>
-        </div>
+        <div class="cat-left"><span class="cat-num">01</span><span class="cat-name">Studio</span></div>
         <span class="cat-arrow">→</span>
       </a>
-
       <a href="#" class="cat-item" data-img="1">
-        <div class="cat-left">
-          <span class="cat-num">02</span>
-          <span class="cat-name">Artistas</span>
-        </div>
+        <div class="cat-left"><span class="cat-num">02</span><span class="cat-name">Artistas</span></div>
         <span class="cat-arrow">→</span>
       </a>
-
       <a href="#" class="cat-item" data-img="2">
-        <div class="cat-left">
-          <span class="cat-num">03</span>
-          <span class="cat-name">Sessions</span>
-        </div>
+        <div class="cat-left"><span class="cat-num">03</span><span class="cat-name">Sessions</span></div>
         <span class="cat-arrow">→</span>
       </a>
-
       <a href="#" class="cat-item" data-img="3">
-        <div class="cat-left">
-          <span class="cat-num">04</span>
-          <span class="cat-name">KITD</span>
-        </div>
+        <div class="cat-left"><span class="cat-num">04</span><span class="cat-name">KITD</span></div>
         <span class="cat-arrow">→</span>
       </a>
-
     </div>
-
-    <!-- Image panel — replace src with your images -->
     <div class="cat-img-panel">
       <div class="cat-img-slot" id="cat-img-0" style="background-image: url('IMG_6528.jpg');"></div>
       <div class="cat-img-slot" id="cat-img-1" style="background-image: url('Artists.jpg');"></div>
       <div class="cat-img-slot" id="cat-img-2" style="background-image: url('IMG_4660.jpg');"></div>
       <div class="cat-img-slot" id="cat-img-3" style="background-image: url('IMG_3696.jpg');"></div>
     </div>
-
   </div>
-
 </div>
 
-<!-- BLACK BLOCK: Spotify embed, white theme on black bg -->
 <div id="spotify-block">
   <p class="cat-label">Lo que hemos producido</p>
-  <iframe
-    src="https://open.spotify.com/embed/playlist/3oCCKYAqDatUc8NODyMgKH?utm_source=generator&theme=0"
-    width="100%"
-    height="620"
-    frameborder="0"
+  <iframe src="https://open.spotify.com/embed/playlist/3oCCKYAqDatUc8NODyMgKH?utm_source=generator&theme=0"
+    width="100%" height="620" frameborder="0"
     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-    loading="lazy"
-    style="border-radius: 16px; display: block;">
-  </iframe>
+    loading="lazy" style="border-radius: 16px; display: block;"></iframe>
 </div>
 
 <footer id="footer">
-
-  <!-- Social icons -->
   <div class="footer-socials">
-
-    <!-- Instagram -->
-    <a href="#" aria-label="Instagram">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-    </a>
-
-    <!-- YouTube -->
-    <a href="#" aria-label="YouTube">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
-    </a>
-
-    <!-- X (Twitter) -->
-    <a href="#" aria-label="X">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
-    </a>
-
-    <!-- Spotify -->
-    <a href="https://open.spotify.com/playlist/3oCCKYAqDatUc8NODyMgKH" target="_blank" aria-label="Spotify">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
-    </a>
-
-    <!-- Apple Music -->
-    <a href="#" aria-label="Apple Music">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 00-1.877-.726 10.496 10.496 0 00-1.564-.15c-.04-.003-.083-.01-.124-.013H5.986c-.152.01-.303.017-.455.026C4.786.07 4.043.15 3.34.428 2.004.958 1.04 1.88.475 3.208a5.49 5.49 0 00-.39 1.548c-.06.34-.093.683-.09 1.026-.007.83 0 1.66 0 2.49v9.57c0 .7.07 1.397.3 2.07.59 1.79 1.86 2.91 3.67 3.32.47.108.94.16 1.42.165h13.24c.57-.005 1.14-.072 1.69-.2 1.89-.44 3.13-1.57 3.71-3.43.14-.447.21-.904.22-1.364.008-4.013.004-8.024.005-12.036zM15.5 17.5c-.44.344-1.02.5-1.69.5-.36 0-.68-.063-.97-.188a2.32 2.32 0 01-.76-.562c-.44-.5-.57-1.06-.38-1.688.19-.61.64-1.0 1.35-1.188l2.44-.687v-6.19l-5 1.437v7.25c0 .032-.002.062-.004.093-.04.657-.27 1.195-.69 1.594-.44.406-1.02.625-1.75.625-.36 0-.69-.063-.98-.188a2.32 2.32 0 01-.75-.562c-.44-.5-.57-1.063-.38-1.688.19-.613.64-1.0 1.35-1.188l2.44-.687V7.157l7.5-2.157v9c0 .344-.125.656-.37.938z"/></svg>
-    </a>
-
-    <!-- WhatsApp -->
-    <a href="#" aria-label="WhatsApp">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    </a>
-
-    <!-- TikTok -->
-    <a href="#" aria-label="TikTok">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
-    </a>
-
+    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+    <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
+    <a href="#" aria-label="X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></a>
+    <a href="https://open.spotify.com/playlist/3oCCKYAqDatUc8NODyMgKH" target="_blank" aria-label="Spotify"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg></a>
+    <a href="#" aria-label="Apple Music"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 00-1.877-.726 10.496 10.496 0 00-1.564-.15c-.04-.003-.083-.01-.124-.013H5.986c-.152.01-.303.017-.455.026C4.786.07 4.043.15 3.34.428 2.004.958 1.04 1.88.475 3.208a5.49 5.49 0 00-.39 1.548c-.06.34-.093.683-.09 1.026-.007.83 0 1.66 0 2.49v9.57c0 .7.07 1.397.3 2.07.59 1.79 1.86 2.91 3.67 3.32.47.108.94.16 1.42.165h13.24c.57-.005 1.14-.072 1.69-.2 1.89-.44 3.13-1.57 3.71-3.43.14-.447.21-.904.22-1.364.008-4.013.004-8.024.005-12.036zM15.5 17.5c-.44.344-1.02.5-1.69.5-.36 0-.68-.063-.97-.188a2.32 2.32 0 01-.76-.562c-.44-.5-.57-1.06-.38-1.688.19-.61.64-1.0 1.35-1.188l2.44-.687v-6.19l-5 1.437v7.25c0 .032-.002.062-.004.093-.04.657-.27 1.195-.69 1.594-.44.406-1.02.625-1.75.625-.36 0-.69-.063-.98-.188a2.32 2.32 0 01-.75-.562c-.44-.5-.57-1.063-.38-1.688.19-.613.64-1.0 1.35-1.188l2.44-.687V7.157l7.5-2.157v9c0 .344-.125.656-.37.938z"/></svg></a>
+    <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+    <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a>
   </div>
-
-  <!-- Legal links -->
   <div class="footer-links">
     <a href="#">Contacto</a>
     <a href="#">Preguntas frecuentes</a>
@@ -640,21 +447,15 @@ body {
     <a href="#">Política de privacidad</a>
     <a href="#">Términos de uso</a>
   </div>
-
-  <!-- Copyright -->
   <p class="footer-copy">© 2026 Darker Project. Todos los derechos reservados.</p>
-
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-
-/* ══ NAV ══ */
 var hamburger  = document.getElementById('hamburger');
 var navOverlay = document.getElementById('nav-overlay');
 var logoEl     = document.getElementById('logo');
 
-/* ── MOBILE CAROUSEL ── */
 ;(function() {
   var ITEMS = [
     { label: 'Home',     href: '#' },
@@ -722,7 +523,6 @@ navOverlay.querySelectorAll('a').forEach(function(a) {
   });
 });
 
-/* ══ BEAM CANVAS ══ */
 var beamCanvas = document.getElementById('beam-canvas');
 var bctx = beamCanvas.getContext('2d');
 function resizeBC() { beamCanvas.width = window.innerWidth; beamCanvas.height = window.innerHeight; }
@@ -736,7 +536,6 @@ function drawBeam(tipX, tipY, angleDeg, halfAngle, opacity) {
   var len = Math.max(W, H) * 1.8;
   var hw  = Math.tan(halfAngle * Math.PI / 180) * len;
   var px = -dy, py = dx;
-
   bctx.save();
   bctx.globalAlpha = opacity;
   bctx.beginPath();
@@ -745,16 +544,13 @@ function drawBeam(tipX, tipY, angleDeg, halfAngle, opacity) {
   bctx.lineTo(tipX + dx*len - px*hw, tipY + dy*len - py*hw);
   bctx.closePath();
   bctx.clip();
-
   var vg = bctx.createLinearGradient(tipX, tipY, tipX + dx*len*0.7, tipY + dy*len*0.7);
   vg.addColorStop(0,    'rgba(255,255,255,1.00)');
   vg.addColorStop(0.05, 'rgba(255,255,255,0.98)');
   vg.addColorStop(1,    'rgba(255,255,255,0.92)');
   bctx.fillStyle = vg;
   bctx.fillRect(0, 0, W, H);
-
-  var hg = bctx.createLinearGradient(tipX + px*hw*0.9, tipY + py*hw*0.9,
-                                      tipX - px*hw*0.9, tipY - py*hw*0.9);
+  var hg = bctx.createLinearGradient(tipX + px*hw*0.9, tipY + py*hw*0.9, tipX - px*hw*0.9, tipY - py*hw*0.9);
   hg.addColorStop(0.00, 'rgba(0,0,0,0.18)');
   hg.addColorStop(0.28, 'rgba(0,0,0,0.05)');
   hg.addColorStop(0.50, 'rgba(0,0,0,0.00)');
@@ -765,7 +561,6 @@ function drawBeam(tipX, tipY, angleDeg, halfAngle, opacity) {
   bctx.restore();
 }
 
-/* ══ THREE.JS ══ */
 var threeCanvas = document.getElementById('three-canvas');
 var renderer = new THREE.WebGLRenderer({ canvas: threeCanvas, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -780,14 +575,8 @@ function setSize() {
   var w = window.innerWidth, h = window.innerHeight;
   renderer.setSize(w, h);
   camera.aspect = w / h;
-  // On mobile pull camera back so all fixtures fit and no zoom artifact
-  if (w < 768) {
-    camera.position.z = 10;
-    camera.fov = 48;
-  } else {
-    camera.position.z = 9;
-    camera.fov = 45;
-  }
+  if (w < 768) { camera.position.z = 10; camera.fov = 48; }
+  else          { camera.position.z = 9;  camera.fov = 45; }
   camera.updateProjectionMatrix();
 }
 setSize();
@@ -797,20 +586,12 @@ function M(hex, metal, rough) {
   return new THREE.MeshStandardMaterial({ color: hex, metalness: metal, roughness: rough });
 }
 
-/* ── TRUSS ── */
 var trussY = 2.90;
 var pipeMat = M(0x333333, 0.9, 0.2);
-
 var frontPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 7.2, 16), pipeMat);
-frontPipe.rotation.z = Math.PI / 2;
-frontPipe.position.set(0, trussY, 0);
-scene.add(frontPipe);
-
+frontPipe.rotation.z = Math.PI / 2; frontPipe.position.set(0, trussY, 0); scene.add(frontPipe);
 var backPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 7.2, 16), pipeMat);
-backPipe.rotation.z = Math.PI / 2;
-backPipe.position.set(0, trussY, -0.22);
-scene.add(backPipe);
-
+backPipe.rotation.z = Math.PI / 2; backPipe.position.set(0, trussY, -0.22); scene.add(backPipe);
 var braceMat = M(0x444444, 0.8, 0.3);
 for (var b = 0; b < 7; b++) {
   var brace = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.26, 8), braceMat);
@@ -819,112 +600,60 @@ for (var b = 0; b < 7; b++) {
   scene.add(brace);
 }
 
-/* ── 5 SPOTLIGHT FIXTURES ── */
 var CONFIGS = [
-  { x: -2.4, tiltDeg:  20 },
-  { x: -1.2, tiltDeg:  10 },
-  { x:  0.0, tiltDeg:   0 },
-  { x:  1.2, tiltDeg: -10 },
-  { x:  2.4, tiltDeg: -20 },
+  { x: -2.4, tiltDeg:  20 }, { x: -1.2, tiltDeg:  10 },
+  { x:  0.0, tiltDeg:   0 }, { x:  1.2, tiltDeg: -10 }, { x:  2.4, tiltDeg: -20 },
 ];
 var DELAYS = [0.08, 0.04, 0.0, 0.04, 0.08];
 var fixtures = [];
 
 CONFIGS.forEach(function(cfg) {
   var fix = new THREE.Group();
-  fix.position.set(cfg.x, trussY, 0);
-  scene.add(fix);
-
-  // Clamp
+  fix.position.set(cfg.x, trussY, 0); scene.add(fix);
   var clampMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.14, 16), M(0x444444, 0.85, 0.2));
-  clampMesh.rotation.z = Math.PI / 2;
-  fix.add(clampMesh);
-
-  // Connecting stem — goes from clamp straight down to pivot, thick enough to be clearly visible
+  clampMesh.rotation.z = Math.PI / 2; fix.add(clampMesh);
   var stem = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.38, 12), M(0x3a3a3a, 0.85, 0.2));
-  stem.position.set(0, -0.20, 0);
-  fix.add(stem);
-
-  // Pivot disc (yoke connection, slightly larger)
+  stem.position.set(0, -0.20, 0); fix.add(stem);
   var pivotDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.062, 0.07, 16), M(0x555555, 0.9, 0.15));
-  pivotDisc.position.set(0, -0.31, 0);
-  fix.add(pivotDisc);
-
-  // Housing — rotates both left/right (z) AND forward toward camera (x, animated)
+  pivotDisc.position.set(0, -0.31, 0); fix.add(pivotDisc);
   var housing = new THREE.Group();
   housing.position.set(0, -0.31, 0);
-  housing.rotation.z = cfg.tiltDeg * Math.PI / 180; // fixed left/right tilt
-  housing.rotation.x = 0; // starts at 0 (pointing down), animated toward camera
-  fix.add(housing);
-
-  // Yoke arms — thin circular tubes
+  housing.rotation.z = cfg.tiltDeg * Math.PI / 180;
+  housing.rotation.x = 0; fix.add(housing);
   var armMat = M(0x444444, 0.8, 0.3);
   var armL = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.34, 12), armMat);
   armL.position.set(-0.21, -0.28, 0); housing.add(armL);
   var armR = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.34, 12), armMat);
   armR.position.set( 0.21, -0.28, 0); housing.add(armR);
-
-  // Horizontal crossbar — thin circular tube bridging left and right arms
-  var yokeBar = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.018, 0.018, 0.50, 12),
-    M(0x444444, 0.8, 0.3)
-  );
-  yokeBar.rotation.z = Math.PI / 2;
-  yokeBar.position.set(0, -0.125, 0);
-  housing.add(yokeBar);
-
-  // Body
+  var yokeBar = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.50, 12), M(0x444444, 0.8, 0.3));
+  yokeBar.rotation.z = Math.PI / 2; yokeBar.position.set(0, -0.125, 0); housing.add(yokeBar);
   var body = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.20, 0.38, 24), M(0x1e1e1e, 0.75, 0.45));
-  body.position.set(0, -0.47, 0);
-  housing.add(body);
-
-  // Reflector interior
+  body.position.set(0, -0.47, 0); housing.add(body);
   var reflMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 1.0, roughness: 0.04, side: THREE.BackSide });
   var reflector = new THREE.Mesh(new THREE.ConeGeometry(0.185, 0.32, 24), reflMat);
-  reflector.position.set(0, -0.49, 0);
-  housing.add(reflector);
-
-  // Front bezel
+  reflector.position.set(0, -0.49, 0); housing.add(reflector);
   var bezel = new THREE.Mesh(new THREE.TorusGeometry(0.20, 0.02, 12, 48), M(0x777777, 1.0, 0.05));
-  bezel.rotation.x = Math.PI / 2;
-  bezel.position.set(0, -0.66, 0);
-  housing.add(bezel);
-
-  // Lens
+  bezel.rotation.x = Math.PI / 2; bezel.position.set(0, -0.66, 0); housing.add(bezel);
   var lMat = new THREE.MeshStandardMaterial({
     color: 0xddeeff, emissive: new THREE.Color(0xfff8e0), emissiveIntensity: 0,
     transparent: true, opacity: 0.82, metalness: 0, roughness: 0
   });
   var lensM = new THREE.Mesh(new THREE.CircleGeometry(0.185, 48), lMat);
-  lensM.rotation.x = Math.PI / 2;
-  lensM.position.set(0, -0.662, 0);
-  housing.add(lensM);
-
-  // Glow disc
+  lensM.rotation.x = Math.PI / 2; lensM.position.set(0, -0.662, 0); housing.add(lensM);
   var gMat = new THREE.MeshBasicMaterial({ color: 0xfffce0, transparent: true, opacity: 0, side: THREE.DoubleSide });
   var gDisc = new THREE.Mesh(new THREE.CircleGeometry(0.14, 48), gMat);
-  gDisc.rotation.x = Math.PI / 2;
-  gDisc.position.set(0, -0.664, 0);
-  housing.add(gDisc);
-
-  fixtures.push({
-    housing:   housing,
-    lensLocal: new THREE.Vector3(0, -0.662, 0),
-    tiltDeg:   cfg.tiltDeg,
-    lensMat:   lMat,
-    glowMat:   gMat
-  });
+  gDisc.rotation.x = Math.PI / 2; gDisc.position.set(0, -0.664, 0); housing.add(gDisc);
+  fixtures.push({ housing, lensLocal: new THREE.Vector3(0, -0.662, 0), tiltDeg: cfg.tiltDeg, lensMat: lMat, glowMat: gMat });
 });
 
-/* ── SCENE LIGHTS ── */
 scene.add(new THREE.AmbientLight(0xffffff, 0.55));
 var rA = new THREE.DirectionalLight(0xffffff, 1.0); rA.position.set(-4,6,5); scene.add(rA);
 var rB = new THREE.DirectionalLight(0xffe8cc, 0.35); rB.position.set(4,3,5); scene.add(rB);
 var rC = new THREE.DirectionalLight(0x445577, 0.25); rC.position.set(0,-5,3); scene.add(rC);
 
-/* ══ SCROLL ══ */
 var scrollScene = document.getElementById('scroll-scene');
 var whiteBg     = document.getElementById('white-bg');
+var stickyBg    = document.getElementById('sticky-bg');
 var titleH1     = document.querySelector('#title h1');
 var titleP      = document.querySelector('#title p');
 var titleEl     = document.getElementById('title');
@@ -935,7 +664,7 @@ function lerp(a,b,t)   { return a+(b-a)*t; }
 function map(v,a,b,c,d){ return lerp(c,d,clamp((v-a)/(b-a),0,1)); }
 function eio(t)         { return t<0.5?2*t*t:-1+(4-2*t)*t; }
 
-var scrollP  = 0;
+var scrollP = 0;
 
 function toScreen(worldPos) {
   var v = worldPos.clone().project(camera);
@@ -944,23 +673,11 @@ function toScreen(worldPos) {
 
 function updateScene(p) {
   scene.updateMatrixWorld();
-
-  /* ── Per-light turn-on (staggered) ── */
   var lightTs = fixtures.map(function(fx, i) {
     return eio(map(p, 0.02 + DELAYS[i], 0.42 + DELAYS[i], 0, 1));
   });
   var avgLight = lightTs.reduce(function(s,t){ return s+t; },0) / fixtures.length;
 
-  /* ── FIX 3: Rotate housings toward camera as scroll progresses ──
-     rotation.x: 0 = pointing down, -PI*0.45 = tilted strongly toward viewer.
-     The forward tilt mirrors the light turn-on timing so they rotate AS they light up.
-  */
-  /* Forward tilt spans from p=0.10 → p=0.82, the full animation window.
-     At p=0.44 (beams just starting) reflectors are only ~35% rotated.
-     At p=0.82 (page fully white) they reach full forward position.
-     This keeps the physical sense: more tilt toward camera = more light = whiter page. */
-  // Rotation curve: still 0→35%, starts at 35%, halfway at 75%, fully forward at 100%
-  // Power 1.5 gives a slow start that matches "barely lifting" at 35-55 and ~50% at p=0.75
   var rotT = Math.pow(clamp((p - 0.25) / (0.90 - 0.25), 0, 1), 1.5);
   var tiltMax = window.innerWidth < 768 ? 0.28 : 0.45;
   var forwardTilt = -Math.PI * tiltMax * rotT;
@@ -970,46 +687,31 @@ function updateScene(p) {
     fx.glowMat.opacity           = lightTs[i] * 0.95;
   });
 
-  /* ── BEAMS ── */
   bctx.clearRect(0, 0, beamCanvas.width, beamCanvas.height);
   bctx.globalCompositeOperation = 'lighter';
-
   fixtures.forEach(function(fx, i) {
     var t = lightTs[i];
     if (t < 0.01) return;
-
     var lensW = fx.lensLocal.clone();
     fx.housing.localToWorld(lensW);
     var scr = toScreen(lensW);
     var tx = scr.x / 100 * beamCanvas.width;
     var ty = scr.y / 100 * beamCanvas.height;
-
     var beamProgress = eio(t) * eio(map(p, 0.02, 0.68, 0, 1));
     var ha  = lerp(2, 52, beamProgress);
     var bOp = t * 0.34;
-
-    // As the housing tilts toward camera the beam tip moves in screen space —
-    // the tiltDeg drives the left/right angle of each individual beam
     drawBeam(tx, ty, fx.tiltDeg, ha, bOp);
   });
-
   bctx.globalCompositeOperation = 'source-over';
 
-  /* ── WHITE BACKGROUND ──
-     Fades in from p=0.44 to p=0.82. Sits ABOVE the beam canvas (z:2 > z:1)
-     so when fully opaque it hides ALL beam triangles completely — no gray shadows.
-  */
   var maxWhite = eio(map(p, 0.34, 0.72, 0, 1));
   whiteBg.style.opacity = maxWhite;
+  // Fade sticky-bg out as white fades in — so black disappears naturally
+  stickyBg.style.opacity = 1 - maxWhite;
 
-  /* ── FIX 2: Fixtures fade out WITH the white, not before it ──
-     Only start disappearing once white is already at 72%.
-     They vanish in the final stretch of the white fade — as if washed out by light.
-  */
   var fixOpacity = clamp(1 - eio(map(p, 0.40, 0.75, 0, 1)), 0, 1);
   threeCanvas.style.opacity = fixOpacity;
 
-  /* ── TITLE + HEADER ── */
   var titleLit  = avgLight > 0.55;
   var headerLit = maxWhite > 0.88;
   var pillShow  = eio(clamp((maxWhite - 0.62) / (1.0 - 0.62), 0, 1));
@@ -1024,15 +726,13 @@ function updateScene(p) {
   });
   if (window._mcSync) window._mcSync(headerLit ? '#000' : '#fff');
 
-  /* ── SOCIAL PILL + TITLE FLOAT ── */
-  var floatT    = eio(clamp((p - 0.80) / (1.0 - 0.80), 0, 1));
-  var floatPx   = floatT * -140;
+  var floatT     = eio(clamp((p - 0.80) / (1.0 - 0.80), 0, 1));
+  var floatPx    = floatT * -140;
   var entrancePx = (1 - pillShow) * 36;
 
-  socialPill.style.opacity  = pillShow;
+  socialPill.style.opacity = pillShow;
   socialPill.style.pointerEvents = pillShow > 0.5 ? 'all' : 'none';
-  titleEl.style.transform   = 'translate(-50%, calc(-50% + ' + floatPx + 'px))';
-  // Base offset 166px below center (30% more than before), plus entrance rise, plus float
+  titleEl.style.transform  = 'translate(-50%, calc(-50% + ' + floatPx + 'px))';
   socialPill.style.transform = 'translate(-50%, calc(166px + ' + (floatPx + entrancePx) + 'px))';
 }
 
@@ -1045,7 +745,6 @@ function onScroll() {
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 
-/* ══ CATEGORY LIST ENTRANCE + HOVER IMAGE ══ */
 var catItems = document.querySelectorAll('.cat-item');
 var catObserver = new IntersectionObserver(function(entries) {
   entries.forEach(function(entry) {
@@ -1067,12 +766,8 @@ catItems.forEach(function(item) {
   });
 });
 
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-}
+function animate() { requestAnimationFrame(animate); renderer.render(scene, camera); }
 animate();
-
 </script>
 </body>
 </html>
