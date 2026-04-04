@@ -718,10 +718,11 @@ function updateScene(p) {
   } else if (sceneFade >= 0.999) {
     scrollScene.style.background = '#fff';
   } else {
-    var rx = 60 + sceneFade * 140;
-    var ry = 30 + sceneFade * 120;
-    var whiteCore = sceneFade * 55;
-    var fadeEnd = whiteCore + 12 + (1 - sceneFade) * 12;
+    var sf = Math.pow(sceneFade, 0.45); // fast early growth, slows down later
+    var rx = 60 + sf * 140;
+    var ry = 30 + sf * 120;
+    var whiteCore = sf * 55;
+    var fadeEnd = whiteCore + 12 + (1 - sf) * 12;
     scrollScene.style.background = 'radial-gradient(ellipse ' + rx + '% ' + ry + '% at 50% 0%, #fff ' + whiteCore + '%, rgba(255,255,255,0.1) ' + (whiteCore + 8) + '%, #000 ' + Math.min(fadeEnd, 100) + '%)';
   }
 
