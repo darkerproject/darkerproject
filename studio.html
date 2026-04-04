@@ -256,6 +256,9 @@ body {
 
   #hamburger { width: 22px; height: 15px; }
   #hamburger span { height: 1.5px; }
+  /* Recalculate X for smaller hamburger (7px instead of 10px) */
+  #hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  #hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
   #nav-overlay { display: none !important; }
 
@@ -281,7 +284,7 @@ body {
     transition: opacity 0.15s ease;
   }
   .mc-arrow:active { opacity: 0.2; }
-  .mc-arrow svg { width: 10px; height: 16px; stroke: #555; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .mc-arrow svg { width: 10px; height: 16px; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
   #mc-clip {
     height: 64px; width: 120px;
@@ -289,12 +292,7 @@ body {
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  #mc-clip::before, #mc-clip::after {
-    content: ''; position: absolute; top: 0; bottom: 0;
-    width: 14px; z-index: 2; pointer-events: none;
-  }
-  #mc-clip::before { left:  0; background: linear-gradient(to right, var(--mc-fade,#fff), transparent); }
-  #mc-clip::after  { right: 0; background: linear-gradient(to left,  var(--mc-fade,#fff), transparent); }
+  /* No fade masks — label fades on its own during slide animation */
 
   .mc-lbl {
     position: absolute;
@@ -460,9 +458,8 @@ var navOverlay = document.getElementById('nav-overlay');
     if (Math.abs(dx) > 30) go(dx > 0 ? 1 : -1);
   }, { passive: true });
 
-  window._mcSync = function(color, fade) {
+  window._mcSync = function(color) {
     mc.style.setProperty('--mc-color', color);
-    mc.style.setProperty('--mc-fade', fade || (color === '#fff' ? 'rgba(0,0,0,0.55)' : '#fff'));
   };
   window._mcOpen  = function() { mc.classList.add('open'); };
   window._mcClose = function() { mc.classList.remove('open'); };
@@ -486,7 +483,7 @@ new IntersectionObserver(function(entries) {
   navLinks.forEach(function(a) { a.style.color = col; });
   logoImg.style.filter = heroGone ? 'brightness(0) invert(1)' : 'brightness(0)';
   hamburger.querySelectorAll('span').forEach(function(s) { s.style.background = col; });
-  window._mcSync && window._mcSync(col, fade);
+  window._mcSync && window._mcSync(col);
 }, { threshold: 0.05, rootMargin: '0px 0px -10px 0px' }).observe(hero);
 
 
