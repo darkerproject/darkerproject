@@ -254,38 +254,38 @@ body {
   /* Hide desktop nav on mobile */
   #nav-overlay { display: none !important; }
 
-  /* Mobile carousel */
+  /* Mobile carousel - single item */
   #mc {
     position: fixed; top: 0; z-index: 101;
-    left: 56px; right: 56px; height: 64px;
+    left: 52px; right: 52px; height: 64px;
     display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
+    gap: 12px;
     opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease;
   }
   #mc.open { opacity: 1; pointer-events: all; }
 
-  /* Fade masks */
-  #mc::before, #mc::after {
-    content: ''; position: absolute; top: 0; bottom: 0;
-    width: 36px; z-index: 2; pointer-events: none;
+  .mc-arrow {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 18px; font-weight: 300;
+    color: var(--mc-color, #111);
+    opacity: 0.35;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+    padding: 8px 4px;
+    transition: color 0.2s ease;
   }
-  #mc::before { left: 0; background: linear-gradient(to right, var(--mc-fade, #fff) 10%, transparent); }
-  #mc::after  { right: 0; background: linear-gradient(to left,  var(--mc-fade, #fff) 10%, transparent); }
 
-  #mc-track {
-    display: flex; align-items: center; gap: 36px;
-    will-change: transform;
+  #mc-label {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 15px; font-weight: 500;
+    color: var(--mc-color, #111);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.2s ease, opacity 0.2s ease;
+    letter-spacing: -0.2px;
   }
-  .mc-item {
-    font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    text-decoration: none; white-space: nowrap; flex-shrink: 0;
-    color: var(--mc-color, #000);
-    opacity: 0.3;
-    transition: opacity 0.25s ease, color 0.2s ease;
-    cursor: pointer; user-select: none;
-  }
-  .mc-item.mc-active { opacity: 1; }
 }
 </style>
 </head>
@@ -309,8 +309,10 @@ body {
 </nav>
 
 <!-- Mobile infinite carousel (only active on mobile) -->
-<div id="mc" style="--mc-fade:#fff; --mc-color:#000;">
-  <div id="mc-track"></div>
+<div id="mc" style="--mc-color:#111;">
+  <span class="mc-arrow mc-prev">&#8249;</span>
+  <a id="mc-label" href="#">Home</a>
+  <span class="mc-arrow mc-next">&#8250;</span>
 </div>
 
 <section id="hero"><h1>Studio</h1></section>
@@ -368,70 +370,46 @@ var navOverlay = document.getElementById('nav-overlay');
     { label: 'Sessions', href: '#' },
     { label: 'KITD',     href: '#' },
   ];
-  var REPS = 7;
-  var N    = ITEMS.length;
-  var GAP  = 36;
+  var N   = ITEMS.length;
+  var cur = 0;
   var mc    = document.getElementById('mc');
-  var track = document.getElementById('mc-track');
-  if (!mc || !track) return;
+  var label = document.getElementById('mc-label');
+  var prev  = mc && mc.querySelector('.mc-prev');
+  var next  = mc && mc.querySelector('.mc-next');
+  if (!mc || !label) return;
 
-  var els = [];
-  for (var r = 0; r < REPS; r++) {
-    for (var j = 0; j < N; j++) {
-      var a = document.createElement('a');
-      a.href = ITEMS[j].href;
-      a.textContent = ITEMS[j].label;
-      a.className = 'mc-item';
-      track.appendChild(a);
-      els.push(a);
-    }
-  }
+  function wrap(i) { return ((i % N) + N) % N; }
 
-  var cur = Math.floor(REPS / 2) * N;
-
-  function isMob() { return window.innerWidth <= 768; }
-
-  function render(animated) {
-    if (!isMob()) return;
-    var iw = els[0] ? els[0].offsetWidth : 70;
-    var step = iw + GAP;
-    var offset = mc.offsetWidth / 2 - iw / 2 - cur * step;
-    track.style.transition = animated
-      ? 'transform 0.38s cubic-bezier(0.23,1,0.32,1)' : 'none';
-    track.style.transform = 'translateX(' + offset + 'px)';
-    els.forEach(function(el, i) { el.classList.toggle('mc-active', i === cur); });
+  function show(animated) {
+    var item = ITEMS[wrap(cur)];
     if (animated) {
+      label.style.opacity = '0';
       setTimeout(function() {
-        if (cur < N) { cur += N * Math.floor(REPS / 2); render(false); }
-        else if (cur >= N * (REPS - 1)) { cur -= N * Math.floor(REPS / 2); render(false); }
-      }, 420);
+        label.textContent = item.label;
+        label.href = item.href;
+        label.style.opacity = '1';
+      }, 120);
+    } else {
+      label.textContent = item.label;
+      label.href = item.href;
     }
   }
 
+  if (prev) prev.addEventListener('click', function() { cur--; show(true); });
+  if (next) next.addEventListener('click', function() { cur++; show(true); });
+
+  // Touch swipe
   var tx0 = 0;
   mc.addEventListener('touchstart', function(e) { tx0 = e.touches[0].clientX; }, { passive: true });
   mc.addEventListener('touchend', function(e) {
     var dx = tx0 - e.changedTouches[0].clientX;
-    if (Math.abs(dx) > 28) { cur += dx > 0 ? 1 : -1; render(true); }
+    if (Math.abs(dx) > 30) { cur += dx > 0 ? 1 : -1; show(true); }
   }, { passive: true });
 
-  track.addEventListener('click', function(e) {
-    var a = e.target.closest('.mc-item');
-    if (!a) return;
-    var i = els.indexOf(a);
-    if (i === cur) return;
-    e.preventDefault();
-    var diff = i - cur;
-    if (Math.abs(diff) > N / 2) diff -= Math.sign(diff) * N;
-    cur += Math.sign(diff);
-    render(true);
-  });
-
-  window._mcSync = function(color, fade) {
+  window._mcSync = function(color) {
     mc.style.setProperty('--mc-color', color);
-    mc.style.setProperty('--mc-fade', fade);
   };
-  window._mcOpen  = function() { mc.classList.add('open'); render(false); };
+  window._mcOpen  = function() { mc.classList.add('open'); show(false); };
   window._mcClose = function() { mc.classList.remove('open'); };
 })();
 
@@ -453,7 +431,7 @@ new IntersectionObserver(function(entries) {
   navLinks.forEach(function(a) { a.style.color = col; });
   logoImg.style.filter = heroGone ? 'brightness(0) invert(1)' : 'brightness(0)';
   hamburger.querySelectorAll('span').forEach(function(s) { s.style.background = col; });
-  window._mcSync && window._mcSync(col, fade);
+  window._mcSync && window._mcSync(col);
 }, { threshold: 0.05, rootMargin: '0px 0px -10px 0px' }).observe(hero);
 
 
