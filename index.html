@@ -359,8 +359,8 @@ body {
   /* Push fixtures down slightly so they don't crowd the header */
   /* Push fixtures down — offset the canvases directly since they're absolute */
   #sticky { padding-top: 0; }
-  #three-canvas { top: 28px !important; }
-  #beam-canvas  { top: 28px !important; }
+  #three-canvas { top: 12px !important; }
+  #beam-canvas  { top: 12px !important; }
 
   /* Smaller hamburger */
   #hamburger { width: 22px; height: 15px; }
@@ -908,7 +908,8 @@ function updateScene(p) {
   // Rotation curve: still 0→35%, starts at 35%, halfway at 75%, fully forward at 100%
   // Power 1.5 gives a slow start that matches "barely lifting" at 35-55 and ~50% at p=0.75
   var rotT = Math.pow(clamp((p - 0.25) / (0.90 - 0.25), 0, 1), 1.5);
-  var forwardTilt = -Math.PI * 0.45 * rotT;
+  var tiltMax = window.innerWidth < 768 ? 0.18 : 0.45;
+  var forwardTilt = -Math.PI * tiltMax * rotT;
   fixtures.forEach(function(fx, i) {
     fx.housing.rotation.x = forwardTilt;
     fx.lensMat.emissiveIntensity = lightTs[i] * 3.0;
