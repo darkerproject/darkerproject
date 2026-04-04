@@ -251,40 +251,53 @@ body {
   #gallery { grid-template-columns: repeat(2, 1fr); gap: 2px; }
   #lightbox-prev, #lightbox-next { display: none; }
 
+  /* Smaller hamburger on mobile */
+  #hamburger { width: 26px; height: 18px; }
+
   /* Hide desktop nav on mobile */
   #nav-overlay { display: none !important; }
 
-  /* Mobile carousel - single item */
+  /* Mobile carousel */
   #mc {
     position: fixed; top: 0; z-index: 101;
-    left: 52px; right: 52px; height: 64px;
-    display: flex; align-items: center; justify-content: center;
-    gap: 12px;
+    left: 48px; right: 48px; height: 64px;
+    display: flex; align-items: center;
+    gap: 10px;
     opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease;
   }
   #mc.open { opacity: 1; pointer-events: all; }
 
   .mc-arrow {
+    font-size: 30px; font-weight: 300; line-height: 1;
+    color: #0057FF;
+    cursor: pointer; user-select: none; flex-shrink: 0;
+    padding: 4px;
+    transition: opacity 0.15s ease;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 18px; font-weight: 300;
-    color: var(--mc-color, #111);
-    opacity: 0.35;
-    cursor: pointer;
-    user-select: none;
-    flex-shrink: 0;
-    padding: 8px 4px;
-    transition: color 0.2s ease;
   }
+  .mc-arrow:active { opacity: 0.4; }
 
-  #mc-label {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 15px; font-weight: 500;
+  /* Clipping box — labels slide inside here, fade masks on edges */
+  #mc-clip {
+    flex: 1; height: 64px;
+    overflow: hidden; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #mc-clip::before, #mc-clip::after {
+    content: ''; position: absolute; top: 0; bottom: 0;
+    width: 22px; z-index: 2; pointer-events: none;
+  }
+  #mc-clip::before { left:  0; background: linear-gradient(to right, var(--mc-fade,#fff), transparent); }
+  #mc-clip::after  { right: 0; background: linear-gradient(to left,  var(--mc-fade,#fff), transparent); }
+
+  /* The sliding label — two clones handled by JS */
+  .mc-lbl {
+    position: absolute;
+    font: 500 15px/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: var(--mc-color, #111);
-    text-decoration: none;
-    white-space: nowrap;
-    transition: color 0.2s ease, opacity 0.2s ease;
-    letter-spacing: -0.2px;
+    text-decoration: none; white-space: nowrap; letter-spacing: -0.2px;
+    will-change: transform, opacity;
   }
 }
 </style>
@@ -309,9 +322,9 @@ body {
 </nav>
 
 <!-- Mobile infinite carousel (only active on mobile) -->
-<div id="mc" style="--mc-color:#111;">
+<div id="mc" style="--mc-color:#111; --mc-fade:#fff;">
   <span class="mc-arrow mc-prev">&#8249;</span>
-  <a id="mc-label" href="#">Home</a>
+  <div id="mc-clip"></div>
   <span class="mc-arrow mc-next">&#8250;</span>
 </div>
 
@@ -372,44 +385,78 @@ var navOverlay = document.getElementById('nav-overlay');
   ];
   var N   = ITEMS.length;
   var cur = 0;
-  var mc    = document.getElementById('mc');
-  var label = document.getElementById('mc-label');
-  var prev  = mc && mc.querySelector('.mc-prev');
-  var next  = mc && mc.querySelector('.mc-next');
-  if (!mc || !label) return;
+  var busy = false;
+  var mc   = document.getElementById('mc');
+  var clip = document.getElementById('mc-clip');
+  var prev = mc && mc.querySelector('.mc-prev');
+  var next = mc && mc.querySelector('.mc-next');
+  if (!mc || !clip) return;
 
   function wrap(i) { return ((i % N) + N) % N; }
 
-  function show(animated) {
-    var item = ITEMS[wrap(cur)];
-    if (animated) {
-      label.style.opacity = '0';
-      setTimeout(function() {
-        label.textContent = item.label;
-        label.href = item.href;
-        label.style.opacity = '1';
-      }, 120);
-    } else {
-      label.textContent = item.label;
-      label.href = item.href;
-    }
+  function makeLabel(item) {
+    var a = document.createElement('a');
+    a.href = item.href;
+    a.textContent = item.label;
+    a.className = 'mc-lbl';
+    return a;
   }
 
-  if (prev) prev.addEventListener('click', function() { cur--; show(true); });
-  if (next) next.addEventListener('click', function() { cur++; show(true); });
+  // Build initial label
+  var current = makeLabel(ITEMS[wrap(cur)]);
+  current.style.transform = 'translateX(0)';
+  current.style.opacity   = '1';
+  clip.appendChild(current);
+
+  function go(dir) {
+    if (busy) return;
+    busy = true;
+    cur += dir; // dir: +1 = next (slide left), -1 = prev (slide right)
+    var D = 60; // px slide distance
+    var dur = 320; // ms
+
+    var incoming = makeLabel(ITEMS[wrap(cur)]);
+    // Start position: off to the right (dir>0) or left (dir<0)
+    incoming.style.transform = 'translateX(' + (dir * D) + 'px)';
+    incoming.style.opacity   = '0';
+    incoming.style.transition = 'none';
+    clip.appendChild(incoming);
+
+    // Force reflow then animate both
+    incoming.offsetWidth;
+    var t = 'transform ' + dur + 'ms cubic-bezier(0.23,1,0.32,1), opacity ' + dur + 'ms ease';
+    current.style.transition = t;
+    incoming.style.transition = t;
+
+    current.style.transform = 'translateX(' + (-dir * D) + 'px)';
+    current.style.opacity   = '0';
+    incoming.style.transform = 'translateX(0)';
+    incoming.style.opacity   = '1';
+
+    var outgoing = current;
+    current = incoming;
+    setTimeout(function() {
+      if (outgoing.parentNode) outgoing.parentNode.removeChild(outgoing);
+      busy = false;
+    }, dur + 20);
+  }
+
+  if (prev) prev.addEventListener('click', function() { go(-1); });
+  if (next) next.addEventListener('click', function() { go(1); });
 
   // Touch swipe
   var tx0 = 0;
   mc.addEventListener('touchstart', function(e) { tx0 = e.touches[0].clientX; }, { passive: true });
   mc.addEventListener('touchend', function(e) {
     var dx = tx0 - e.changedTouches[0].clientX;
-    if (Math.abs(dx) > 30) { cur += dx > 0 ? 1 : -1; show(true); }
+    if (Math.abs(dx) > 30) go(dx > 0 ? 1 : -1);
   }, { passive: true });
 
-  window._mcSync = function(color) {
+  window._mcSync = function(color, fade) {
     mc.style.setProperty('--mc-color', color);
+    mc.style.setProperty('--mc-fade', fade || (color === '#fff' ? 'rgba(0,0,0,0.55)' : '#fff'));
   };
-  window._mcOpen  = function() { mc.classList.add('open'); show(false); };
+  window._mcOpen  = function() { mc.classList.add('open'); };
   window._mcClose = function() { mc.classList.remove('open'); };
 })();
 
@@ -431,7 +478,7 @@ new IntersectionObserver(function(entries) {
   navLinks.forEach(function(a) { a.style.color = col; });
   logoImg.style.filter = heroGone ? 'brightness(0) invert(1)' : 'brightness(0)';
   hamburger.querySelectorAll('span').forEach(function(s) { s.style.background = col; });
-  window._mcSync && window._mcSync(col);
+  window._mcSync && window._mcSync(col, fade);
 }, { threshold: 0.05, rootMargin: '0px 0px -10px 0px' }).observe(hero);
 
 
