@@ -89,7 +89,7 @@ body {
 #nav-overlay.open .nav-links a:nth-child(4) { transition-delay:.15s; }
 #nav-overlay.open .nav-links a:nth-child(5) { transition-delay:.19s; }
 
-#scroll-scene { height: 500svh; position: relative; background: #fff; }
+#scroll-scene { height: 500svh; position: relative; background: #000; transition: background 0.3s ease; }
 #sticky {
   position: sticky; top: 0;
   height: 100vh; overflow: hidden;
@@ -713,10 +713,11 @@ function updateScene(p) {
   whiteBg.style.opacity = maxWhite;
   stickyBg.style.opacity = 1 - maxWhite;
 
-  // Sync html/body/theme-color: black at start, fades to white with transition
+  // Sync html/body/scroll-scene/theme-color: black at start, fades to white with transition
   var bgColor = maxWhite > 0.5 ? '#fff' : '#000';
   document.documentElement.style.background = bgColor;
   document.body.style.background = bgColor;
+  scrollScene.style.background = bgColor;
   var tc = document.getElementById('theme-color');
   if (tc) tc.setAttribute('content', maxWhite > 0.5 ? '#ffffff' : '#000000');
 
