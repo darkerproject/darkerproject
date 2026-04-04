@@ -250,6 +250,7 @@ body {
   #header { padding: 0 20px; }
   #nav-overlay { right: 20px; }
   #gallery { grid-template-columns: repeat(2, 1fr); gap: 2px; }
+  #lightbox-prev, #lightbox-next { display: none; }
 }
 </style>
 </head>
@@ -387,6 +388,29 @@ lbClose.addEventListener('click', closeLB);
 lbNext.addEventListener('click', nextLB);
 lbPrev.addEventListener('click', prevLB);
 lightbox.addEventListener('click', function(e){ if(e.target===lightbox) closeLB(); });
+// Touch swipe for mobile
+var touchStartX = 0;
+lbImg.addEventListener('touchstart', function(e) {
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+lbImg.addEventListener('touchend', function(e) {
+  var diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) nextLB(); else prevLB();
+  }
+}, { passive: true });
+// Also allow swipe anywhere on lightbox overlay
+lightbox.addEventListener('touchstart', function(e) {
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+lightbox.addEventListener('touchend', function(e) {
+  if (e.target === lightbox) { closeLB(); return; }
+  var diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) nextLB(); else prevLB();
+  }
+}, { passive: true });
+
 document.addEventListener('keydown', function(e){
   if(!lightbox.classList.contains('open')) return;
   if(e.key==='Escape') closeLB();
