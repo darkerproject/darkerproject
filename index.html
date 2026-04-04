@@ -711,8 +711,19 @@ function updateScene(p) {
   whiteBg.style.opacity = maxWhite;
   stickyBg.style.opacity = 1 - maxWhite;
 
-  // Sync scroll-scene background: black at start, white when transition completes
-  scrollScene.style.background = maxWhite > 0.5 ? '#fff' : '#000';
+  // Sync scroll-scene: radial white circle expanding from top-center like light spill
+  var sceneFade = eio(map(p, 0.08, 0.55, 0, 1));
+  if (sceneFade <= 0.001) {
+    scrollScene.style.background = '#000';
+  } else if (sceneFade >= 0.999) {
+    scrollScene.style.background = '#fff';
+  } else {
+    var rx = 60 + sceneFade * 140;  // horizontal radius grows wide
+    var ry = 30 + sceneFade * 120;  // vertical radius grows down
+    var whiteCore = sceneFade * 40;  // solid white center grows
+    var fadeEnd = whiteCore + 40 + (1 - sceneFade) * 40; // soft feathered edge
+    scrollScene.style.background = 'radial-gradient(ellipse ' + rx + '% ' + ry + '% at 50% 0%, #fff ' + whiteCore + '%, rgba(255,255,255,0.3) ' + (whiteCore + fadeEnd) * 0.5 + '%, #000 ' + Math.min(fadeEnd, 100) + '%)';
+  }
 
   var fixOpacity = clamp(1 - eio(map(p, 0.40, 0.75, 0, 1)), 0, 1);
   threeCanvas.style.opacity = fixOpacity;
