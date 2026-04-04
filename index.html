@@ -16,6 +16,23 @@ body {
   height: 64px;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 44px;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 0.5px solid rgba(180,180,180,0.15);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255,255,255,0.18),
+    0 1px 0 rgba(0,0,0,0.06),
+    0 4px 24px rgba(0,0,0,0.08);
+  transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+#header.lit {
+  background: rgba(255,255,255,0.6);
+  border-bottom-color: rgba(255,255,255,0.5);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255,255,255,0.95),
+    0 1px 0 rgba(0,0,0,0.04),
+    0 4px 24px rgba(0,0,0,0.05);
 }
 .logo {
   font-weight: 700; font-size: 15px; color: #fff;
@@ -305,19 +322,70 @@ body {
   text-transform: none;
 }
 /* ══════════════════════════════
-   MOBILE — max-width: 768px
-   Only overrides, desktop untouched
-══════════════════════════════ */
+/* #mc hidden on desktop */
+#mc { display: none; }
+
+/* ── MOBILE ── */
 @media (max-width: 768px) {
 
   /* ── Header ── */
-  #header { padding: 0 20px; height: 56px; }
+  #header {
+    padding: 0 20px; height: 64px;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(24px) saturate(1.8);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
+    border-bottom: 0.5px solid rgba(180,180,180,0.15);
+    box-shadow:
+      inset 0 0.5px 0 rgba(255,255,255,0.95),
+      0 1px 0 rgba(0,0,0,0.06),
+      0 4px 24px rgba(0,0,0,0.05);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* Logo black on mobile (white bg) */
+  #logo-img { filter: brightness(0) !important; }
+  #hamburger span { background: #000 !important; }
+
+  /* Smaller hamburger */
+  #hamburger { width: 22px; height: 15px; }
+  #hamburger span { height: 1.5px; }
+  #hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  #hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Hide desktop nav */
+  #nav-overlay { display: none !important; }
+
+  /* Mobile carousel */
+  #mc {
+    display: flex; position: fixed; top: 0; z-index: 101;
+    left: 50%; transform: translateX(-50%);
+    height: 64px; align-items: center; gap: 10px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease; white-space: nowrap;
+  }
+  #mc.open { opacity: 1; pointer-events: all; }
+  .mc-arrow {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none; flex-shrink: 0;
+    opacity: 0.45; transition: opacity 0.15s ease;
+  }
+  .mc-arrow:active { opacity: 0.2; }
+  .mc-arrow svg { width: 10px; height: 16px; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  #mc-clip {
+    height: 64px; width: 120px; overflow: hidden; position: relative;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .mc-lbl {
+    position: absolute;
+    font: 500 14px/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: var(--mc-color, #111);
+    text-decoration: none; white-space: nowrap; letter-spacing: -0.1px;
+    will-change: transform, opacity;
+  }
 
   /* ── Nav overlay: vertical stack on mobile ── */
-  #nav-overlay {
-    top: 0; right: 20px; height: 56px;
-    align-items: center;
-  }
+  #nav-overlay { top: 0; right: 20px; height: 56px; align-items: center; }
   .nav-links { gap: 20px; }
   .nav-links a { font-size: 13px; }
 
@@ -327,42 +395,21 @@ body {
 
   /* ── Categories section ── */
   #below { padding: 60px 24px 60px; }
-
-  .cat-section {
-    display: block; /* single column, no grid */
-  }
-
-  /* Hide image panel entirely on mobile */
+  .cat-section { display: block; }
   .cat-img-panel { display: none; }
-
   .cat-label { margin: 0 0 36px; }
-
-  .cat-name {
-    font-size: clamp(28px, 8vw, 42px);
-    letter-spacing: -1px;
-  }
-
+  .cat-name { font-size: clamp(28px, 8vw, 42px); letter-spacing: -1px; }
   .cat-item { padding: 20px 0; }
 
   /* ── Spotify block ── */
   #spotify-block { padding: 50px 24px 70px; }
-
-  #spotify-block iframe {
-    height: 460px;
-    border-radius: 12px;
-  }
+  #spotify-block iframe { height: 460px; border-radius: 12px; }
 
   /* ── Footer ── */
   #footer { padding: 40px 24px 28px; }
-
   .footer-socials { gap: 20px; flex-wrap: wrap; }
   .footer-socials svg { width: 20px; height: 20px; }
-
-  .footer-links {
-    gap: 8px 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+  .footer-links { gap: 8px 20px; flex-wrap: wrap; justify-content: center; }
 
 }
 </style>
@@ -387,6 +434,17 @@ body {
     <a href="#">KITD</a>
   </div>
 </nav>
+
+<!-- Mobile carousel -->
+<div id="mc" style="--mc-color:#111;">
+  <span class="mc-arrow mc-prev">
+    <svg viewBox="0 0 8 14"><path d="M6 1 L2 7 L6 13" stroke="#666" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </span>
+  <div id="mc-clip"></div>
+  <span class="mc-arrow mc-next">
+    <svg viewBox="0 0 8 14"><path d="M2 1 L6 7 L2 13" stroke="#666" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </span>
+</div>
 
 <div id="scroll-scene">
   <div id="sticky">
@@ -527,9 +585,67 @@ body {
 var hamburger  = document.getElementById('hamburger');
 var navOverlay = document.getElementById('nav-overlay');
 var logoEl     = document.getElementById('logo');
+
+/* ── MOBILE CAROUSEL ── */
+;(function() {
+  var ITEMS = [
+    { label: 'Home',     href: '#' },
+    { label: 'Studio',   href: 'studio.html' },
+    { label: 'Artistas', href: '#' },
+    { label: 'Sessions', href: '#' },
+    { label: 'KITD',     href: '#' },
+  ];
+  var N = ITEMS.length, cur = 0, busy = false;
+  var mc   = document.getElementById('mc');
+  var clip = document.getElementById('mc-clip');
+  var prev = mc && mc.querySelector('.mc-prev');
+  var next = mc && mc.querySelector('.mc-next');
+  if (!mc || !clip) return;
+  function wrap(i) { return ((i % N) + N) % N; }
+  function makeLabel(item) {
+    var a = document.createElement('a');
+    a.href = item.href; a.textContent = item.label; a.className = 'mc-lbl';
+    return a;
+  }
+  var current = makeLabel(ITEMS[0]);
+  current.style.cssText = 'transform:translateX(0);opacity:1;';
+  clip.appendChild(current);
+  function go(dir) {
+    if (busy) return; busy = true; cur += dir;
+    var D = 60, dur = 320;
+    var inc = makeLabel(ITEMS[wrap(cur)]);
+    inc.style.cssText = 'transform:translateX('+(dir*D)+'px);opacity:0;transition:none;';
+    clip.appendChild(inc);
+    inc.offsetWidth;
+    var t = 'transform '+dur+'ms cubic-bezier(0.23,1,0.32,1),opacity '+dur+'ms ease';
+    current.style.transition = t; inc.style.transition = t;
+    current.style.transform = 'translateX('+(-dir*D)+'px)';
+    current.style.opacity = '0';
+    inc.style.transform = 'translateX(0)'; inc.style.opacity = '1';
+    var out = current; current = inc;
+    setTimeout(function(){ if(out.parentNode) out.parentNode.removeChild(out); busy=false; }, dur+20);
+  }
+  if (prev) prev.addEventListener('click', function(){ go(-1); });
+  if (next) next.addEventListener('click', function(){ go(1); });
+  var tx0 = 0;
+  mc.addEventListener('touchstart', function(e){ tx0=e.touches[0].clientX; },{passive:true});
+  mc.addEventListener('touchend', function(e){
+    var dx = tx0-e.changedTouches[0].clientX;
+    if (Math.abs(dx)>30) go(dx>0?1:-1);
+  },{passive:true});
+  window._mcSync = function(color){ mc.style.setProperty('--mc-color', color); };
+  window._mcOpen  = function(){ mc.classList.add('open'); };
+  window._mcClose = function(){ mc.classList.remove('open'); };
+})();
+
 hamburger.addEventListener('click', function() {
   var open = hamburger.classList.toggle('open');
-  navOverlay.classList.toggle('open', open);
+  if (window.innerWidth <= 768) {
+    open ? window._mcOpen && window._mcOpen() : window._mcClose && window._mcClose();
+    navOverlay.classList.remove('open');
+  } else {
+    navOverlay.classList.toggle('open', open);
+  }
 });
 navOverlay.querySelectorAll('a').forEach(function(a) {
   a.addEventListener('click', function() {
@@ -823,9 +939,12 @@ function updateScene(p) {
   titleP.style.color  = titleLit ? '#000' : '#fff';
   logoEl.classList.toggle('dark', headerLit);
   hamburger.classList.toggle('dark', headerLit);
+  document.getElementById('header').classList.toggle('lit', headerLit);
   navOverlay.querySelectorAll('a').forEach(function(a) {
     a.classList.toggle('dark-link', headerLit);
   });
+  // Sync mobile carousel color
+  if (window._mcSync) window._mcSync(headerLit ? '#000' : '#fff');
 }
 
 function onScroll() {
