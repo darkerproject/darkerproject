@@ -2,33 +2,22 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#ffffff">
 <title>Darker Project</title>
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { background: #000; transition: background 0.3s ease; }
+html { background: #fff; }
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background: #000;
-  overflow-x: hidden;
-}
-/* Fixed white strip covering top safe area — always white */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: env(safe-area-inset-top);
   background: #fff;
-  z-index: 999;
-  pointer-events: none;
+  overflow-x: hidden;
 }
 #header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: calc(64px + env(safe-area-inset-top));
+  height: 64px;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 44px;
-  padding-top: env(safe-area-inset-top);
   background: rgba(255,255,255,0.07);
   backdrop-filter: blur(24px) saturate(1.4);
   -webkit-backdrop-filter: blur(24px) saturate(1.4);
@@ -99,7 +88,7 @@ body::before {
 #nav-overlay.open .nav-links a:nth-child(4) { transition-delay:.15s; }
 #nav-overlay.open .nav-links a:nth-child(5) { transition-delay:.19s; }
 
-#scroll-scene { height: 500svh; position: relative; background: #000; transition: background 0.3s ease; }
+#scroll-scene { height: 500svh; position: relative; background: #fff; }
 #sticky {
   position: sticky; top: 0;
   height: 100vh; overflow: hidden;
@@ -243,7 +232,7 @@ body::before {
 .cat-item:nth-child(2) { transition-delay: 0.12s; }
 .cat-item:nth-child(3) { transition-delay: 0.19s; }
 #spotify-block { background: #fff; padding: 90px 80px 120px; }
-#footer { background: #eceef0; padding: 48px 60px calc(32px + env(safe-area-inset-bottom)); text-align: center; }
+#footer { background: #eceef0; padding: 48px 60px 32px; text-align: center; }
 .footer-socials { display: flex; justify-content: center; align-items: center; gap: 28px; margin-bottom: 28px; }
 .footer-socials a { color: #777; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; transition: opacity 0.2s ease; display: flex; align-items: center; }
 .footer-socials a:hover { opacity: 0.4; }
@@ -262,8 +251,7 @@ body::before {
 /* ── MOBILE ── */
 @media (max-width: 768px) {
   #header {
-    padding: 0 20px; height: calc(64px + env(safe-area-inset-top));
-    padding-top: env(safe-area-inset-top);
+    padding: 0 20px; height: 64px;
     background: rgba(255,255,255,0.07);
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
@@ -300,7 +288,7 @@ body::before {
   #nav-overlay { display: none !important; }
 
   #mc {
-    display: flex; position: fixed; top: env(safe-area-inset-top); z-index: 101;
+    display: flex; position: fixed; top: 0; z-index: 101;
     left: 50%; transform: translateX(-50%);
     height: 64px; align-items: center; gap: 10px;
     opacity: 0; pointer-events: none;
@@ -344,7 +332,7 @@ body::before {
   #spotify-block { padding: 50px 24px 70px; }
   #spotify-block iframe { height: 460px; border-radius: 12px; }
 
-  #footer { padding: 40px 24px calc(28px + env(safe-area-inset-bottom)); }
+  #footer { padding: 40px 24px 28px; }
   .footer-socials { gap: 20px; flex-wrap: wrap; }
   .footer-socials svg { width: 20px; height: 20px; }
   .footer-links { gap: 8px 20px; flex-wrap: wrap; justify-content: center; }
@@ -722,12 +710,6 @@ function updateScene(p) {
   var maxWhite = eio(map(p, 0.34, 0.72, 0, 1));
   whiteBg.style.opacity = maxWhite;
   stickyBg.style.opacity = 1 - maxWhite;
-
-  // Sync html/body/scroll-scene: black at start, fades to white with transition
-  var bgColor = maxWhite > 0.5 ? '#fff' : '#000';
-  document.documentElement.style.background = bgColor;
-  document.body.style.background = bgColor;
-  scrollScene.style.background = bgColor;
 
   var fixOpacity = clamp(1 - eio(map(p, 0.40, 0.75, 0, 1)), 0, 1);
   threeCanvas.style.opacity = fixOpacity;
