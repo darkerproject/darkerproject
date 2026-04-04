@@ -544,31 +544,31 @@ function drawBeam(tipX, tipY, angleDeg, halfAngle, opacity) {
   bctx.globalAlpha = opacity;
 
   if (isMobile) {
-    // Soft beam: wider triangle, strong edge fade — beams blend together
-    var hwSoft = hw * 1.3; // slightly wider
+    // Soft beam: much wider, heavy fade — dreamy light effect
+    var hwSoft = hw * 1.8;
     bctx.beginPath();
     bctx.moveTo(tipX, tipY);
     bctx.lineTo(tipX + dx*len + px*hwSoft, tipY + dy*len + py*hwSoft);
     bctx.lineTo(tipX + dx*len - px*hwSoft, tipY + dy*len - py*hwSoft);
     bctx.closePath();
     bctx.clip();
-    // Vertical gradient: bright at tip, fades along length
-    var vg = bctx.createLinearGradient(tipX, tipY, tipX + dx*len*0.7, tipY + dy*len*0.7);
-    vg.addColorStop(0,    'rgba(255,255,255,0.95)');
-    vg.addColorStop(0.3,  'rgba(255,255,255,0.7)');
-    vg.addColorStop(0.7,  'rgba(255,255,255,0.3)');
-    vg.addColorStop(1,    'rgba(255,255,255,0.05)');
+    // Vertical: fades heavily along length
+    var vg = bctx.createLinearGradient(tipX, tipY, tipX + dx*len*0.6, tipY + dy*len*0.6);
+    vg.addColorStop(0,    'rgba(255,255,255,0.7)');
+    vg.addColorStop(0.15, 'rgba(255,255,255,0.4)');
+    vg.addColorStop(0.4,  'rgba(255,255,255,0.15)');
+    vg.addColorStop(1,    'rgba(255,255,255,0.0)');
     bctx.fillStyle = vg;
     bctx.fillRect(0, 0, W, H);
-    // Strong horizontal edge fade — soft edges
+    // Extreme horizontal edge fade
     var hg = bctx.createLinearGradient(tipX + px*hwSoft, tipY + py*hwSoft, tipX - px*hwSoft, tipY - py*hwSoft);
-    hg.addColorStop(0.00, 'rgba(0,0,0,0.95)');
-    hg.addColorStop(0.20, 'rgba(0,0,0,0.50)');
-    hg.addColorStop(0.35, 'rgba(0,0,0,0.10)');
+    hg.addColorStop(0.00, 'rgba(0,0,0,1.0)');
+    hg.addColorStop(0.25, 'rgba(0,0,0,0.85)');
+    hg.addColorStop(0.40, 'rgba(0,0,0,0.30)');
     hg.addColorStop(0.50, 'rgba(0,0,0,0.00)');
-    hg.addColorStop(0.65, 'rgba(0,0,0,0.10)');
-    hg.addColorStop(0.80, 'rgba(0,0,0,0.50)');
-    hg.addColorStop(1.00, 'rgba(0,0,0,0.95)');
+    hg.addColorStop(0.60, 'rgba(0,0,0,0.30)');
+    hg.addColorStop(0.75, 'rgba(0,0,0,0.85)');
+    hg.addColorStop(1.00, 'rgba(0,0,0,1.0)');
     bctx.fillStyle = hg;
     bctx.fillRect(0, 0, W, H);
   } else {
