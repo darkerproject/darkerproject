@@ -248,9 +248,44 @@ body {
 /* ── MOBILE ── */
 @media (max-width: 768px) {
   #header { padding: 0 20px; }
-  #nav-overlay { right: 20px; }
   #gallery { grid-template-columns: repeat(2, 1fr); gap: 2px; }
   #lightbox-prev, #lightbox-next { display: none; }
+
+  /* Hide desktop nav on mobile */
+  #nav-overlay { display: none !important; }
+
+  /* Mobile carousel */
+  #mc {
+    position: fixed; top: 0; z-index: 101;
+    left: 56px; right: 56px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  #mc.open { opacity: 1; pointer-events: all; }
+
+  /* Fade masks */
+  #mc::before, #mc::after {
+    content: ''; position: absolute; top: 0; bottom: 0;
+    width: 36px; z-index: 2; pointer-events: none;
+  }
+  #mc::before { left: 0; background: linear-gradient(to right, var(--mc-fade, #fff) 10%, transparent); }
+  #mc::after  { right: 0; background: linear-gradient(to left,  var(--mc-fade, #fff) 10%, transparent); }
+
+  #mc-track {
+    display: flex; align-items: center; gap: 36px;
+    will-change: transform;
+  }
+  .mc-item {
+    font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    text-decoration: none; white-space: nowrap; flex-shrink: 0;
+    color: var(--mc-color, #000);
+    opacity: 0.3;
+    transition: opacity 0.25s ease, color 0.2s ease;
+    cursor: pointer; user-select: none;
+  }
+  .mc-item.mc-active { opacity: 1; }
 }
 </style>
 </head>
@@ -272,6 +307,11 @@ body {
     <a href="#">KITD</a>
   </div>
 </nav>
+
+<!-- Mobile infinite carousel (only active on mobile) -->
+<div id="mc" style="--mc-fade:#fff; --mc-color:#000;">
+  <div id="mc-track"></div>
+</div>
 
 <section id="hero"><h1>Studio</h1></section>
 
@@ -319,6 +359,82 @@ body {
 var hamburger  = document.getElementById('hamburger');
 var navOverlay = document.getElementById('nav-overlay');
 
+/* ── MOBILE CAROUSEL ── */
+;(function() {
+  var ITEMS = [
+    { label: 'Home',     href: 'index.html' },
+    { label: 'Studio',   href: 'studio.html' },
+    { label: 'Artistas', href: '#' },
+    { label: 'Sessions', href: '#' },
+    { label: 'KITD',     href: '#' },
+  ];
+  var REPS = 7;
+  var N    = ITEMS.length;
+  var GAP  = 36;
+  var mc    = document.getElementById('mc');
+  var track = document.getElementById('mc-track');
+  if (!mc || !track) return;
+
+  var els = [];
+  for (var r = 0; r < REPS; r++) {
+    for (var j = 0; j < N; j++) {
+      var a = document.createElement('a');
+      a.href = ITEMS[j].href;
+      a.textContent = ITEMS[j].label;
+      a.className = 'mc-item';
+      track.appendChild(a);
+      els.push(a);
+    }
+  }
+
+  var cur = Math.floor(REPS / 2) * N;
+
+  function isMob() { return window.innerWidth <= 768; }
+
+  function render(animated) {
+    if (!isMob()) return;
+    var iw = els[0] ? els[0].offsetWidth : 70;
+    var step = iw + GAP;
+    var offset = mc.offsetWidth / 2 - iw / 2 - cur * step;
+    track.style.transition = animated
+      ? 'transform 0.38s cubic-bezier(0.23,1,0.32,1)' : 'none';
+    track.style.transform = 'translateX(' + offset + 'px)';
+    els.forEach(function(el, i) { el.classList.toggle('mc-active', i === cur); });
+    if (animated) {
+      setTimeout(function() {
+        if (cur < N) { cur += N * Math.floor(REPS / 2); render(false); }
+        else if (cur >= N * (REPS - 1)) { cur -= N * Math.floor(REPS / 2); render(false); }
+      }, 420);
+    }
+  }
+
+  var tx0 = 0;
+  mc.addEventListener('touchstart', function(e) { tx0 = e.touches[0].clientX; }, { passive: true });
+  mc.addEventListener('touchend', function(e) {
+    var dx = tx0 - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 28) { cur += dx > 0 ? 1 : -1; render(true); }
+  }, { passive: true });
+
+  track.addEventListener('click', function(e) {
+    var a = e.target.closest('.mc-item');
+    if (!a) return;
+    var i = els.indexOf(a);
+    if (i === cur) return;
+    e.preventDefault();
+    var diff = i - cur;
+    if (Math.abs(diff) > N / 2) diff -= Math.sign(diff) * N;
+    cur += Math.sign(diff);
+    render(true);
+  });
+
+  window._mcSync = function(color, fade) {
+    mc.style.setProperty('--mc-color', color);
+    mc.style.setProperty('--mc-fade', fade);
+  };
+  window._mcOpen  = function() { mc.classList.add('open'); render(false); };
+  window._mcClose = function() { mc.classList.remove('open'); };
+})();
+
 /* ── PILL ── */
 var pill = document.getElementById('pill');
 var hero = document.getElementById('hero');
@@ -330,21 +446,26 @@ var logoImg  = document.getElementById('logo-img');
 
 new IntersectionObserver(function(entries) {
   var heroGone = !entries[0].isIntersecting;
+  var col  = heroGone ? '#fff' : '#000';
+  var fade = heroGone ? 'rgba(0,0,0,0.55)' : '#fff';
   pill.classList.toggle('visible', heroGone);
   header.classList.toggle('dark-mode', heroGone);
-
-  // Nav links color
-  navLinks.forEach(function(a) { a.style.color = heroGone ? '#fff' : '#000'; });
-  // Logo
+  navLinks.forEach(function(a) { a.style.color = col; });
   logoImg.style.filter = heroGone ? 'brightness(0) invert(1)' : 'brightness(0)';
-  // Hamburger
-  hamburger.querySelectorAll('span').forEach(function(s) { s.style.background = heroGone ? '#fff' : '#000'; });
+  hamburger.querySelectorAll('span').forEach(function(s) { s.style.background = col; });
+  window._mcSync && window._mcSync(col, fade);
 }, { threshold: 0.05, rootMargin: '0px 0px -10px 0px' }).observe(hero);
 
 
 hamburger.addEventListener('click', function() {
   var open = hamburger.classList.toggle('open');
-  navOverlay.classList.toggle('open', open);
+  if (window.innerWidth <= 768) {
+    if (open) { window._mcOpen && window._mcOpen(); }
+    else       { window._mcClose && window._mcClose(); }
+    navOverlay.classList.remove('open');
+  } else {
+    navOverlay.classList.toggle('open', open);
+  }
 });
 navOverlay.querySelectorAll('a').forEach(function(a) {
   a.addEventListener('click', function() {
