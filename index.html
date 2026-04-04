@@ -711,18 +711,22 @@ function updateScene(p) {
   whiteBg.style.opacity = maxWhite;
   stickyBg.style.opacity = 1 - maxWhite;
 
-  // Sync scroll-scene: radial white circle expanding from top-center like light spill
-  var sceneFade = eio(map(p, 0.08, 0.55, 0, 1));
+  // Sync scroll-scene: radial circle synced with beam expansion timing
+  var beamExpand = eio(map(p, 0.02, 0.68, 0, 1));
+  var sceneFade = avgLight * beamExpand; // tied to actual light intensity × beam spread
   if (sceneFade <= 0.001) {
     scrollScene.style.background = '#000';
   } else if (sceneFade >= 0.999) {
     scrollScene.style.background = '#fff';
   } else {
-    var rx = 60 + sceneFade * 140;  // horizontal radius grows wide
-    var ry = 30 + sceneFade * 120;  // vertical radius grows down
-    var whiteCore = sceneFade * 40;  // solid white center grows
-    var fadeEnd = whiteCore + 40 + (1 - sceneFade) * 40; // soft feathered edge
-    scrollScene.style.background = 'radial-gradient(ellipse ' + rx + '% ' + ry + '% at 50% 0%, #fff ' + whiteCore + '%, rgba(255,255,255,0.3) ' + (whiteCore + fadeEnd) * 0.5 + '%, #000 ' + Math.min(fadeEnd, 100) + '%)';
+    var sf2 = Math.pow(sceneFade, 1.4);
+    var rx = 8 + Math.pow(sceneFade, 2.2) * 192;  // horizontal grows slow
+    var ry = 4 + sf2 * 146;                         // vertical drops fast
+    var whiteCore = sf2 * 70;
+    var fadeEdge = whiteCore + 8 + (1 - sceneFade) * 8;
+    var coreVal = Math.round(140 + sceneFade * 115); // 140 (gray) → 255 (white)
+    var coreColor = 'rgb(' + coreVal + ',' + coreVal + ',' + coreVal + ')';
+    scrollScene.style.background = 'radial-gradient(ellipse ' + rx + '% ' + ry + '% at 50% 0%, ' + coreColor + ' ' + whiteCore + '%, rgba(255,255,255,0.06) ' + (whiteCore + 6) + '%, #000 ' + Math.min(fadeEdge, 100) + '%)';
   }
 
   var fixOpacity = clamp(1 - eio(map(p, 0.40, 0.75, 0, 1)), 0, 1);
