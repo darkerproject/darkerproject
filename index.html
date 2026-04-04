@@ -2,13 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000" id="theme-color">
 <title>Darker Project</title>
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { background: #000; transition: background 0.4s ease; }
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background: #fff;
+  background: #000;
   overflow-x: hidden;
 }
 #header {
@@ -16,6 +18,7 @@ body {
   height: 64px;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 44px;
+  padding-top: env(safe-area-inset-top);
   background: rgba(255,255,255,0.07);
   backdrop-filter: blur(24px) saturate(1.4);
   -webkit-backdrop-filter: blur(24px) saturate(1.4);
@@ -90,10 +93,8 @@ body {
 #sticky {
   position: sticky; top: 0;
   height: 100vh; overflow: hidden;
-  /* NO background here — body white shows through to safe areas */
 }
 
-/* Black background lives inside sticky, not on sticky itself */
 #sticky-bg {
   position: absolute; inset: 0;
   background: #000; z-index: 0;
@@ -232,7 +233,7 @@ body {
 .cat-item:nth-child(2) { transition-delay: 0.12s; }
 .cat-item:nth-child(3) { transition-delay: 0.19s; }
 #spotify-block { background: #fff; padding: 90px 80px 120px; }
-#footer { background: #eceef0; padding: 48px 60px 32px; text-align: center; }
+#footer { background: #eceef0; padding: 48px 60px calc(32px + env(safe-area-inset-bottom)); text-align: center; }
 .footer-socials { display: flex; justify-content: center; align-items: center; gap: 28px; margin-bottom: 28px; }
 .footer-socials a { color: #777; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; transition: opacity 0.2s ease; display: flex; align-items: center; }
 .footer-socials a:hover { opacity: 0.4; }
@@ -252,6 +253,7 @@ body {
 @media (max-width: 768px) {
   #header {
     padding: 0 20px; height: 64px;
+    padding-top: env(safe-area-inset-top);
     background: rgba(255,255,255,0.07);
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
@@ -332,7 +334,7 @@ body {
   #spotify-block { padding: 50px 24px 70px; }
   #spotify-block iframe { height: 460px; border-radius: 12px; }
 
-  #footer { padding: 40px 24px 28px; }
+  #footer { padding: 40px 24px calc(28px + env(safe-area-inset-bottom)); }
   .footer-socials { gap: 20px; flex-wrap: wrap; }
   .footer-socials svg { width: 20px; height: 20px; }
   .footer-links { gap: 8px 20px; flex-wrap: wrap; justify-content: center; }
@@ -527,7 +529,6 @@ var beamCanvas = document.getElementById('beam-canvas');
 var bctx = beamCanvas.getContext('2d');
 function resizeBC() {
   beamCanvas.width  = window.innerWidth;
-  // On mobile extend canvas below viewport so beams fill the full screen
   beamCanvas.height = window.innerWidth < 768 ? window.innerHeight * 1.5 : window.innerHeight;
 }
 resizeBC();
@@ -710,8 +711,13 @@ function updateScene(p) {
 
   var maxWhite = eio(map(p, 0.34, 0.72, 0, 1));
   whiteBg.style.opacity = maxWhite;
-  // Fade sticky-bg out as white fades in — so black disappears naturally
   stickyBg.style.opacity = 1 - maxWhite;
+
+  // ── SYNC SAFE AREAS with transition ──
+  // body background transitions with the white overlay
+  document.body.style.background = maxWhite > 0.5 ? '#fff' : '#000';
+  // html background controls the bottom safe area color
+  document.documentElement.style.background = maxWhite > 0.5 ? '#fff' : '#000';
 
   var fixOpacity = clamp(1 - eio(map(p, 0.40, 0.75, 0, 1)), 0, 1);
   threeCanvas.style.opacity = fixOpacity;
@@ -729,6 +735,10 @@ function updateScene(p) {
     a.classList.toggle('dark-link', headerLit);
   });
   if (window._mcSync) window._mcSync(headerLit ? '#000' : '#fff');
+
+  // ── SYNC SAFARI URL BAR (theme-color) ──
+  var tc = document.getElementById('theme-color');
+  if (tc) tc.setAttribute('content', headerLit ? '#ffffff' : '#000000');
 
   var floatT     = eio(clamp((p - 0.80) / (1.0 - 0.80), 0, 1));
   var floatPx    = floatT * -140;
