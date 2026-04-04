@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#000000" id="theme-color">
+<meta name="theme-color" content="#ffffff">
 <title>Darker Project</title>
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -134,16 +134,16 @@ body {
   display: flex; align-items: center; gap: 44px;
   padding: 14px 64px;
   border-radius: 999px;
-  background: rgba(210,212,218,0.70);
-  backdrop-filter: blur(32px) saturate(2.2) brightness(1.05);
-  -webkit-backdrop-filter: blur(32px) saturate(2.2) brightness(1.05);
-  border: 0.5px solid rgba(255,255,255,0.85);
+  background: rgba(10,130,255,0.92);
+  backdrop-filter: blur(32px) saturate(2.2) brightness(1.1);
+  -webkit-backdrop-filter: blur(32px) saturate(2.2) brightness(1.1);
+  border: 0.5px solid rgba(255,255,255,0.30);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.95),
-    inset 0 -0.5px 0 rgba(0,0,0,0.06),
-    0 8px 32px rgba(0,0,0,0.12),
-    0 2px 8px rgba(0,0,0,0.08),
-    0 32px 64px rgba(0,0,0,0.06);
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    inset 0 -0.5px 0 rgba(0,0,0,0.1),
+    0 8px 32px rgba(10,130,255,0.25),
+    0 2px 8px rgba(0,0,0,0.10),
+    0 32px 64px rgba(10,130,255,0.10);
 }
 #social-pill a {
   display: flex; align-items: center; justify-content: center;
@@ -152,7 +152,7 @@ body {
 }
 #social-pill a:hover { opacity: 0.6; }
 #social-pill svg {
-  width: 18px; height: 18px; fill: #3a3a3a; display: block;
+  width: 18px; height: 18px; fill: #fff; display: block;
   overflow: visible; flex-shrink: 0;
 }
 @media (max-width: 768px) {
@@ -701,7 +701,7 @@ function updateScene(p) {
     fx.housing.localToWorld(lensW);
     var scr = toScreen(lensW);
     var tx = scr.x / 100 * beamCanvas.width;
-    var ty = scr.y / 100 * beamCanvas.height;
+    var ty = scr.y / 100 * window.innerHeight;
     var beamProgress = eio(t) * eio(map(p, 0.02, 0.68, 0, 1));
     var ha  = lerp(2, 52, beamProgress);
     var bOp = t * 0.34;
@@ -713,13 +713,11 @@ function updateScene(p) {
   whiteBg.style.opacity = maxWhite;
   stickyBg.style.opacity = 1 - maxWhite;
 
-  // Sync html/body/scroll-scene/theme-color: black at start, fades to white with transition
+  // Sync html/body/scroll-scene: black at start, fades to white with transition
   var bgColor = maxWhite > 0.5 ? '#fff' : '#000';
   document.documentElement.style.background = bgColor;
   document.body.style.background = bgColor;
   scrollScene.style.background = bgColor;
-  var tc = document.getElementById('theme-color');
-  if (tc) tc.setAttribute('content', maxWhite > 0.5 ? '#ffffff' : '#000000');
 
   var fixOpacity = clamp(1 - eio(map(p, 0.40, 0.75, 0, 1)), 0, 1);
   threeCanvas.style.opacity = fixOpacity;
@@ -728,7 +726,7 @@ function updateScene(p) {
   var headerLit = maxWhite > 0.88;
   var pillShow  = eio(clamp((maxWhite - 0.62) / (1.0 - 0.62), 0, 1));
 
-  titleH1.style.color = titleLit ? (pillShow > 0.1 ? '#0057FF' : '#000') : '#fff';
+  titleH1.style.color = titleLit ? '#000' : '#fff';
   titleP.style.color  = titleLit ? '#000' : '#fff';
   logoEl.classList.toggle('dark', headerLit);
   hamburger.classList.toggle('dark', headerLit);
