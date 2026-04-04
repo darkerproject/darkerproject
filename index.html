@@ -712,7 +712,7 @@ function updateScene(p) {
   stickyBg.style.opacity = 1 - maxWhite;
 
   // Scroll-scene: radial white glow expanding from top center
-  var sceneFade = eio(map(p, 0.08, 0.55, 0, 1));
+  var sceneFade = eio(map(p, 0.08, 0.45, 0, 1));
   if (sceneFade <= 0.001) {
     scrollScene.style.background = '#000';
   } else if (sceneFade >= 0.999) {
