@@ -753,32 +753,55 @@ function updateScene(p) {
 
   titleH1.style.color = titleLit ? (pillShow > 0.1 ? '#0057FF' : '#000') : '#fff';
   titleP.style.color  = titleLit ? '#000' : '#fff';
-  logoEl.classList.toggle('dark', headerLit);
-  hamburger.classList.toggle('dark', headerLit);
-  document.getElementById('header').classList.toggle('lit', headerLit);
-  navOverlay.querySelectorAll('a').forEach(function(a) {
-    a.classList.toggle('dark-link', headerLit);
-  });
-  if (window._mcSync) window._mcSync(headerLit ? '#000' : '#fff');
+
+  var headerEl = document.getElementById('header');
+  if (headerEl._lastLit !== headerLit) {
+    headerEl._lastLit = headerLit;
+    logoEl.classList.toggle('dark', headerLit);
+    hamburger.classList.toggle('dark', headerLit);
+    headerEl.classList.toggle('lit', headerLit);
+    _navLinks.forEach(function(a) {
+      a.classList.toggle('dark-link', headerLit);
+    });
+    if (window._mcSync) window._mcSync(headerLit ? '#000' : '#fff');
+  }
 
   var floatT     = eio(clamp((p - 0.80) / (1.0 - 0.80), 0, 1));
   var floatPx    = floatT * -140;
   var entrancePx = (1 - pillShow) * 36;
 
   socialPill.style.opacity = pillShow;
-  socialPill.style.pointerEvents = pillShow > 0.5 ? 'all' : 'none';
-  titleEl.style.transform  = 'translate(-50%, calc(-50% + ' + floatPx + 'px))';
-  socialPill.style.transform = 'translate(-50%, calc(166px + ' + (floatPx + entrancePx) + 'px))';
+  var pillVisible = pillShow > 0.01;
+  socialPill.style.visibility = pillVisible ? 'visible' : 'hidden';
+  var pillActive = pillShow > 0.5 ? 'all' : 'none';
+  if (socialPill._lastPE !== pillActive) {
+    socialPill._lastPE = pillActive;
+    socialPill.style.pointerEvents = pillActive;
+  }
+  titleEl.style.transform  = 'translate3d(-50%, calc(-50% + ' + floatPx + 'px), 0)';
+  socialPill.style.transform = 'translate3d(-50%, calc(166px + ' + (floatPx + entrancePx) + 'px), 0)';
 }
+
+var _navLinks = navOverlay.querySelectorAll('a');
 
 function onScroll() {
   var top   = scrollScene.getBoundingClientRect().top;
   var total = scrollScene.offsetHeight - window.innerHeight;
   scrollP   = clamp(-top / total, 0, 1);
-  updateScene(scrollP);
 }
-window.addEventListener('scroll', onScroll, { passive: true });
+var _scrollTick = false;
+window.addEventListener('scroll', function() {
+  onScroll();
+  if (!_scrollTick) {
+    _scrollTick = true;
+    requestAnimationFrame(function() {
+      updateScene(scrollP);
+      _scrollTick = false;
+    });
+  }
+}, { passive: true });
 onScroll();
+updateScene(scrollP);
 
 var catItems = document.querySelectorAll('.cat-item');
 var catObserver = new IntersectionObserver(function(entries) {
