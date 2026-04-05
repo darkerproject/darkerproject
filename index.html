@@ -7,11 +7,12 @@
 <title>Darker Project</title>
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { background: #fff; }
+html { background: #fff; scroll-snap-type: none; -webkit-overflow-scrolling: touch; }
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background: #fff;
   overflow-x: hidden;
+  scroll-snap-type: none;
 }
 #header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
@@ -88,7 +89,7 @@ body {
 #nav-overlay.open .nav-links a:nth-child(4) { transition-delay:.15s; }
 #nav-overlay.open .nav-links a:nth-child(5) { transition-delay:.19s; }
 
-#scroll-scene { height: 300svh; position: relative; background: #000; }
+#scroll-scene { height: 240svh; position: relative; background: #000; }
 #sticky {
   position: sticky; top: 0;
   height: 100vh; overflow: hidden;
@@ -275,8 +276,8 @@ body {
   #header.lit #logo-img { filter: brightness(0) !important; }
   #header.lit #hamburger span { background: #000 !important; }
 
-  #sticky { height: calc(100svh - 50px); }
-  #scroll-scene { height: 300svh; }
+  #sticky { height: 100svh; }
+  #scroll-scene { height: 240svh; }
   #three-canvas { top: -24px !important; }
   #beam-canvas  { top: -24px !important; }
 
@@ -766,8 +767,6 @@ function updateScene(p) {
     if (window._mcSync) window._mcSync(headerLit ? '#000' : '#fff');
   }
 
-  var floatT     = eio(clamp((p - 0.80) / (1.0 - 0.80), 0, 1));
-  var floatPx    = floatT * -140;
   var entrancePx = (1 - pillShow) * 36;
 
   socialPill.style.opacity = pillShow;
@@ -778,30 +777,26 @@ function updateScene(p) {
     socialPill._lastPE = pillActive;
     socialPill.style.pointerEvents = pillActive;
   }
-  titleEl.style.transform  = 'translate3d(-50%, calc(-50% + ' + floatPx + 'px), 0)';
-  socialPill.style.transform = 'translate3d(-50%, calc(166px + ' + (floatPx + entrancePx) + 'px), 0)';
+  titleEl.style.transform  = 'translate3d(-50%, -50%, 0)';
+  socialPill.style.transform = 'translate3d(-50%, calc(166px + ' + entrancePx + 'px), 0)';
 }
-
-var _navLinks = navOverlay.querySelectorAll('a');
 
 function onScroll() {
   var top   = scrollScene.getBoundingClientRect().top;
   var total = scrollScene.offsetHeight - window.innerHeight;
   scrollP   = clamp(-top / total, 0, 1);
 }
-var _scrollTick = false;
-window.addEventListener('scroll', function() {
-  onScroll();
-  if (!_scrollTick) {
-    _scrollTick = true;
-    requestAnimationFrame(function() {
-      updateScene(scrollP);
-      _scrollTick = false;
-    });
-  }
-}, { passive: true });
+var _navLinks = navOverlay.querySelectorAll('a');
+window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 updateScene(scrollP);
+
+function animate() {
+  requestAnimationFrame(animate);
+  updateScene(scrollP);
+  renderer.render(scene, camera);
+}
+animate();
 
 var catItems = document.querySelectorAll('.cat-item');
 var catObserver = new IntersectionObserver(function(entries) {
@@ -824,8 +819,6 @@ catItems.forEach(function(item) {
   });
 });
 
-function animate() { requestAnimationFrame(animate); renderer.render(scene, camera); }
-animate();
 </script>
 </body>
 </html>
