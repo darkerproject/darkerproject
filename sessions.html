@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sessions — Darker Project</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: #fff;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+#header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 44px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  border-bottom: 0.5px solid #e8e8e8;
+  transition: background 0.35s ease;
+}
+.logo {
+  font-weight: 700; color: #000; text-decoration: none;
+  display: flex; align-items: center; position: relative; z-index: 102;
+}
+#logo-img { height: 34px; width: auto; display: block; filter: brightness(0); }
+
+#hamburger {
+  background: none; border: none; cursor: pointer;
+  width: 34px; height: 22px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  z-index: 102; position: relative; padding: 0;
+}
+#hamburger span {
+  display: block; width: 100%; height: 2px;
+  background: #000; border-radius: 1px; transform-origin: center;
+  transition: transform 0.45s cubic-bezier(0.23,1,0.32,1), opacity 0.3s ease;
+}
+#hamburger.open span:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+#hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+#hamburger.open span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+/* ── NAV OVERLAY ── */
+#nav-overlay {
+  position: fixed; top: 0; right: 110px; height: 64px; z-index: 101;
+  display: flex; align-items: center;
+  opacity: 0; pointer-events: none; transform: translateX(10px);
+  transition: opacity 0.35s cubic-bezier(0.23,1,0.32,1), transform 0.35s cubic-bezier(0.23,1,0.32,1);
+}
+#nav-overlay.open { opacity: 1; pointer-events: all; transform: translateX(0); }
+.nav-links { display: flex; gap: 32px; align-items: center; }
+.nav-links a {
+  font-size: 14px; font-weight: 400; color: #000;
+  text-decoration: none; letter-spacing: 0.01em;
+  opacity: 0; transform: translateX(8px);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.23,1,0.32,1);
+}
+#nav-overlay.open .nav-links a { opacity: 1; transform: translateX(0); }
+#nav-overlay.open .nav-links a:nth-child(1) { transition-delay:.03s; }
+#nav-overlay.open .nav-links a:nth-child(2) { transition-delay:.07s; }
+#nav-overlay.open .nav-links a:nth-child(3) { transition-delay:.11s; }
+#nav-overlay.open .nav-links a:nth-child(4) { transition-delay:.15s; }
+#nav-overlay.open .nav-links a:nth-child(5) { transition-delay:.19s; }
+
+/* ── HERO ── */
+#hero-wrap {
+  height: 25vh; min-height: 140px;
+  padding-top: 64px;
+  display: flex; align-items: center; justify-content: center;
+}
+#hero h1 {
+  font-weight: 700; font-size: clamp(48px, 7vw, 96px);
+  letter-spacing: -3px; color: #111; line-height: 1;
+}
+
+/* ── FLOATING PILL ── */
+#pill {
+  position: fixed; top: 80px; left: 50%;
+  transform: translateX(-50%) translateY(-20px) scaleX(0.85) scaleY(0.7);
+  z-index: 98; pointer-events: none; opacity: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px; padding: 5px 5px 5px 22px;
+  border-radius: 999px;
+  width: clamp(280px, 36vw, 480px);
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 4px 16px rgba(0,0,0,0.10),
+    0 16px 40px rgba(0,0,0,0.10),
+    0 32px 64px rgba(0,0,0,0.06);
+  border: 0.5px solid rgba(200,210,220,0.6);
+  transition:
+    opacity 0.55s cubic-bezier(0.23,1,0.32,1),
+    transform 0.6s cubic-bezier(0.23,1,0.32,1),
+    border-radius 0.6s cubic-bezier(0.23,1,0.32,1),
+    box-shadow 0.55s ease;
+}
+#pill.visible {
+  opacity: 1; pointer-events: all;
+  transform: translateX(-50%) translateY(0) scaleX(1) scaleY(1);
+}
+#pill-title {
+  font-weight: 700; font-size: 16px; letter-spacing: -0.5px;
+  color: #111; white-space: nowrap;
+}
+#pill-btn {
+  background: #0057FF; color: #fff; border: none;
+  border-radius: 999px; padding: 9px 20px;
+  font-size: 13px; font-weight: 500; letter-spacing: -0.1px;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0,87,255,0.35);
+}
+#pill-btn:hover { background: #3375FF; transform: scale(1.03); }
+
+/* ── SESSIONS GRID ── */
+#sessions {
+  padding: 40px 40px 80px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.session-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-height: 400px;
+}
+.session-info {
+  padding: 48px 44px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.session-row > :first-child {
+  border-radius: 16px 0 0 16px;
+}
+.session-row > :last-child {
+  border-radius: 0 16px 16px 0;
+}
+.session-info.dark {
+  background: #111; color: #fff;
+}
+.session-info.light {
+  background: #e8e8ec; color: #111;
+}
+.session-tag {
+  font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; opacity: 0.6;
+  margin-bottom: 24px;
+}
+.session-title {
+  font-weight: 700;
+  font-size: clamp(28px, 3.5vw, 44px);
+  letter-spacing: -1.5px; line-height: 1.05;
+  margin-bottom: 16px;
+}
+.session-desc {
+  font-size: 15px; line-height: 1.6;
+  opacity: 0.7; max-width: 460px;
+}
+.session-meta {
+  margin-top: 28px;
+  font-size: 12px; letter-spacing: 0.08em;
+  opacity: 0.4; text-transform: uppercase;
+}
+.session-video {
+  overflow: hidden;
+  background: #000;
+  position: relative;
+  display: block;
+  text-decoration: none;
+}
+.session-video img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 0.5s cubic-bezier(0.23,1,0.32,1), filter 0.3s ease;
+}
+.session-video:hover img {
+  transform: scale(1.03);
+  filter: brightness(0.8);
+}
+.play-btn {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 68px; height: 48px;
+  opacity: 0.85;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.session-video:hover .play-btn {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* ── FOOTER ── */
+#footer { background: #eceef0; padding: 48px 60px 32px; text-align: center; }
+.footer-socials { display: flex; justify-content: center; align-items: center; gap: 28px; margin-bottom: 28px; }
+.footer-socials a { color: #777; transition: opacity 0.2s ease; display: flex; align-items: center; }
+.footer-socials a:hover { opacity: 0.4; }
+.footer-socials svg { width: 20px; height: 20px; fill: #777; }
+.footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 32px; margin-bottom: 20px; }
+.footer-links a {
+  font-size: 10px; letter-spacing: 0.12em;
+  color: #111; text-decoration: none; transition: opacity 0.2s ease;
+}
+.footer-links a:hover { opacity: 0.4; }
+.footer-copy { font-size: 11px; letter-spacing: 0.02em; color: #777; }
+
+#mc { display: none; }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  #header { padding: 0 20px; }
+  #hamburger { width: 22px; height: 15px; }
+  #hamburger span { height: 1.5px; }
+  #hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  #hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  #nav-overlay { display: none !important; }
+
+  #mc {
+    display: flex; position: fixed; top: 0; z-index: 101;
+    left: 50%; transform: translateX(-50%);
+    height: 64px; align-items: center; gap: 10px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease; white-space: nowrap;
+  }
+  #mc.open { opacity: 1; pointer-events: all; }
+  .mc-arrow {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none; flex-shrink: 0;
+    opacity: 0.45; transition: opacity 0.15s ease;
+  }
+  .mc-arrow:active { opacity: 0.2; }
+  .mc-arrow svg { width: 10px; height: 16px; fill: none; }
+  #mc-clip {
+    height: 64px; width: 120px; overflow: hidden; position: relative;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .mc-lbl {
+    position: absolute;
+    font: 500 14px/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #111; text-decoration: none; white-space: nowrap; letter-spacing: -0.1px;
+    will-change: transform, opacity;
+  }
+
+  #hero-wrap { height: 20vh; min-height: 110px; }
+  #hero h1 { font-size: clamp(36px, 9vw, 52px); letter-spacing: -1.5px; }
+
+  #pill { width: clamp(260px, 80vw, 360px); top: 72px; }
+
+  #sessions { padding: 20px 16px 60px; gap: 20px; }
+  .session-row {
+    grid-template-columns: 1fr 1fr;
+    min-height: 220px;
+  }
+  .session-row > :first-child,
+  .session-row > :last-child {
+    border-radius: 16px;
+  }
+  .session-row > :first-child {
+    border-radius: 16px 0 0 16px;
+  }
+  .session-row > :last-child {
+    border-radius: 0 16px 16px 0;
+  }
+  .session-row.reverse { direction: ltr; }
+  .session-info { padding: 24px 20px; }
+  .session-title { font-size: clamp(18px, 5vw, 24px); }
+  .session-desc { font-size: 12px; line-height: 1.5; }
+  .session-tag { font-size: 9px; margin-bottom: 14px; }
+  .session-meta { font-size: 10px; margin-top: 16px; }
+  .session-video { min-height: 200px; }
+
+  #footer { padding: 40px 24px 28px; }
+  .footer-socials { gap: 20px; flex-wrap: wrap; }
+  .footer-links { gap: 8px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header id="header">
+  <a href="index.html" class="logo">
+    <img src="DP_Logo_White_Icon.png" alt="" id="logo-img">
+  </a>
+  <button id="hamburger" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<nav id="nav-overlay">
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="studio.html">Studio</a>
+    <a href="#">Artistas</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="#">KITD</a>
+  </div>
+</nav>
+
+<div id="mc">
+  <span class="mc-arrow mc-prev">
+    <svg viewBox="0 0 8 14"><path d="M6 1 L2 7 L6 13" stroke="#666" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </span>
+  <div id="mc-clip"></div>
+  <span class="mc-arrow mc-next">
+    <svg viewBox="0 0 8 14"><path d="M2 1 L6 7 L2 13" stroke="#666" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </span>
+</div>
+
+<div id="hero-wrap">
+  <section id="hero"><h1>Sessions</h1></section>
+</div>
+
+<div id="pill">
+  <span id="pill-title">Sessions</span>
+  <button id="pill-btn">Ver todas</button>
+</div>
+
+<div id="sessions">
+
+  <!-- ROW 1: dark info left + video right -->
+  <div class="session-row">
+    <div class="session-info dark">
+      <p class="session-tag">Darker Sessions · Industrial Park</p>
+      <h2 class="session-title">Catarsis desde la nostalgia.</h2>
+      <p class="session-desc">Rock alternativo e indie fusionado con matices de J-rock, transitando entre sonoridades vibrantes y luminosas hasta atmósferas densas y oscuras. Composiciones que abordan la pérdida y la decepción con una carga emocional profunda.</p>
+      <p class="session-meta">Febrero 2026 · 18 min</p>
+    </div>
+    <a href="https://youtu.be/c-_c0FKq5ao" target="_blank" class="session-video">
+      <img src="IMG_4660.jpg" alt="Darker Sessions: Industrial Park">
+      <div class="play-btn"><svg viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24L27 14v20" fill="#fff"/></svg></div>
+    </a>
+  </div>
+
+  <!-- ROW 2: video left + light info right -->
+  <div class="session-row reverse">
+    <a href="https://youtu.be/Av64sMUsa3E" target="_blank" class="session-video">
+      <img src="BF9051E8-FD0C-4DCD-BEB5-CAC58E3996D1__1_.jpg" alt="Darker Sessions: Sueño Neón">
+      <div class="play-btn"><svg viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24L27 14v20" fill="#fff"/></svg></div>
+    </a>
+    <div class="session-info light">
+      <p class="session-tag">Darker Sessions · Sueño Neón</p>
+      <h2 class="session-title">Libre, camaleónico y sin fronteras.</h2>
+      <p class="session-desc">Un universo sonoro donde conviven el hard rock, las baladas y ritmos tropicales en armonía inesperada. Una sesión tan colorida como su música, llena de matices y contrastes visuales que no teme mezclar géneros ni emociones.</p>
+      <p class="session-meta">Octubre 2025 · 34 min</p>
+    </div>
+  </div>
+
+  <!-- ROW 3: dark info left + video right -->
+  <div class="session-row">
+    <div class="session-info dark">
+      <p class="session-tag">Darker Sessions · Gin Xan</p>
+      <h2 class="session-title">Sinceridad en estado puro.</h2>
+      <p class="session-desc">Tres temas que capturan la energía y la emocionalidad sin adornos. Una sesión cruda, directa, y con la honestidad que solo se logra cuando no hay nada que esconder.</p>
+      <p class="session-meta">Septiembre 2025 · 10 min</p>
+    </div>
+    <a href="https://youtu.be/oJYBLTpMyiQ" target="_blank" class="session-video">
+      <img src="https://img.youtube.com/vi/oJYBLTpMyiQ/maxresdefault.jpg" alt="Darker Sessions #10">
+      <div class="play-btn"><svg viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24L27 14v20" fill="#fff"/></svg></div>
+    </a>
+  </div>
+
+  <!-- ROW 4: video left + light info right (same as row 2) -->
+  <div class="session-row reverse">
+    <a href="https://youtu.be/e22W3GknpdY" target="_blank" class="session-video">
+      <img src="IMG_6799_3__1_.jpg" alt="Darker Sessions: Los Flukers">
+      <div class="play-btn"><svg viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24L27 14v20" fill="#fff"/></svg></div>
+    </a>
+    <div class="session-info light">
+      <p class="session-tag">Darker Sessions · Los Flukers</p>
+      <h2 class="session-title">Donde todo empezó.</h2>
+      <p class="session-desc">El primer episodio de Darker Sessions. Actitud y energía que no se guarda nada, desde la habitación oscura del estudio. Solo música real, ejecutada en vivo, sin filtros ni pretensiones.</p>
+      <p class="session-meta">Julio 2025 · 16 min</p>
+    </div>
+  </div>
+
+</div>
+
+<footer id="footer">
+  <div class="footer-socials">
+    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+    <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
+    <a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></a>
+    <a href="https://open.spotify.com/playlist/3oCCKYAqDatUc8NODyMgKH" target="_blank" aria-label="Spotify"><svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg></a>
+    <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+    <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a>
+  </div>
+  <div class="footer-links">
+    <a href="#">Contacto</a>
+    <a href="#">Preguntas frecuentes</a>
+    <a href="#">Trabaja con nosotros</a>
+    <a href="#">Política de privacidad</a>
+    <a href="#">Términos de uso</a>
+  </div>
+  <p class="footer-copy">© 2026 Darker Project. Todos los derechos reservados.</p>
+</footer>
+
+<script>
+var hamburger  = document.getElementById('hamburger');
+var navOverlay = document.getElementById('nav-overlay');
+
+/* ── FLOATING PILL ── */
+var pill = document.getElementById('pill');
+var hero = document.getElementById('hero');
+var pillObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    pill.classList.toggle('visible', !entry.isIntersecting);
+  });
+}, { threshold: 0.1 });
+pillObserver.observe(hero);
+
+/* ── MOBILE CAROUSEL ── */
+;(function() {
+  var ITEMS = [
+    { label: 'Home',     href: 'index.html' },
+    { label: 'Studio',   href: 'studio.html' },
+    { label: 'Artistas', href: '#' },
+    { label: 'Sessions', href: 'sessions.html' },
+    { label: 'KITD',     href: '#' },
+  ];
+  var N = ITEMS.length, cur = 3, busy = false; // start at Sessions
+  var mc   = document.getElementById('mc');
+  var clip = document.getElementById('mc-clip');
+  var prev = mc && mc.querySelector('.mc-prev');
+  var next = mc && mc.querySelector('.mc-next');
+  if (!mc || !clip) return;
+  function wrap(i) { return ((i % N) + N) % N; }
+  function makeLabel(item) {
+    var a = document.createElement('a');
+    a.href = item.href; a.textContent = item.label; a.className = 'mc-lbl';
+    return a;
+  }
+  var current = makeLabel(ITEMS[3]); // Sessions
+  current.style.cssText = 'transform:translateX(0);opacity:1;';
+  clip.appendChild(current);
+  function go(dir) {
+    if (busy) return; busy = true; cur += dir;
+    var D = 60, dur = 320;
+    var inc = makeLabel(ITEMS[wrap(cur)]);
+    inc.style.cssText = 'transform:translateX('+(dir*D)+'px);opacity:0;transition:none;';
+    clip.appendChild(inc);
+    inc.offsetWidth;
+    var t = 'transform '+dur+'ms cubic-bezier(0.23,1,0.32,1),opacity '+dur+'ms ease';
+    current.style.transition = t; inc.style.transition = t;
+    current.style.transform = 'translateX('+(-dir*D)+'px)';
+    current.style.opacity = '0';
+    inc.style.transform = 'translateX(0)'; inc.style.opacity = '1';
+    var out = current; current = inc;
+    setTimeout(function(){ if(out.parentNode) out.parentNode.removeChild(out); busy=false; }, dur+20);
+  }
+  if (prev) prev.addEventListener('click', function(){ go(-1); });
+  if (next) next.addEventListener('click', function(){ go(1); });
+  var tx0 = 0;
+  mc.addEventListener('touchstart', function(e){ tx0=e.touches[0].clientX; },{passive:true});
+  mc.addEventListener('touchend', function(e){
+    var dx = tx0-e.changedTouches[0].clientX;
+    if (Math.abs(dx)>30) go(dx>0?1:-1);
+  },{passive:true});
+  window._mcOpen  = function(){ mc.classList.add('open'); };
+  window._mcClose = function(){ mc.classList.remove('open'); };
+})();
+
+hamburger.addEventListener('click', function() {
+  var open = hamburger.classList.toggle('open');
+  if (window.innerWidth <= 768) {
+    open ? window._mcOpen && window._mcOpen() : window._mcClose && window._mcClose();
+    navOverlay.classList.remove('open');
+  } else {
+    navOverlay.classList.toggle('open', open);
+  }
+});
+navOverlay.querySelectorAll('a').forEach(function(a) {
+  a.addEventListener('click', function() {
+    hamburger.classList.remove('open');
+    navOverlay.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
