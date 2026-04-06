@@ -308,7 +308,10 @@ body.dark {
 #mc { display: none; }
 
 /* ── MOBILE ── */
+.mobile-text { display: none; }
 @media (max-width: 768px) {
+  .desktop-text { display: none !important; }
+  .mobile-text { display: block !important; }
   #header { padding: 0 20px; }
   #hamburger { width: 22px; height: 15px; }
   #hamburger span { height: 1.5px; }
@@ -344,7 +347,7 @@ body.dark {
   }
 
   #hero-wrap { height: 20vh; min-height: 110px; }
-  #hero img { width: clamp(260px, 75vw, 360px); height: auto; }
+  #hero img { width: clamp(200px, 55vw, 280px); height: auto; }
 
   #pill { width: clamp(340px, 92vw, 420px); top: 72px; }
 
@@ -432,7 +435,7 @@ body.dark {
 
 <div id="concept">
   <h2>Menos como producto. <span>Más arte.</span></h2>
-  <p>En un mundo donde la música quedó en segundo plano, creamos un espacio donde es tratada como lo que realmente es: sincera, real, con respeto y descubrimiento. Un hogar tanto para los grandes artistas como para quienes crean desde sus habitaciones, y les brinde un lugar para conectar con su audiencia.</p>
+  <p class="desktop-text">En un mundo donde la música quedó en segundo plano, creamos un espacio donde es tratada como lo que realmente es: sincera, real, con respeto y descubrimiento. Un hogar tanto para los grandes artistas como para quienes crean desde sus habitaciones, y les brinde un lugar para conectar con su audiencia.</p><p class="mobile-text">Un espacio donde la música es tratada como lo que es: sincera, real, con respeto. Un hogar para artistas que buscan conectar con su audiencia.</p>
   <div class="concept-btns">
     <a href="#" class="pill-btn-icon" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
     <a href="https://www.youtube.com/@darkerproject" target="_blank" class="pill-btn-icon" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
@@ -447,11 +450,11 @@ body.dark {
     <div class="session-info dark">
       <p class="session-tag">Darker Sessions · Industrial Park</p>
       <h2 class="session-title">Catarsis desde la nostalgia.</h2>
-      <p class="session-desc">Rock alternativo e indie fusionado con matices de J-rock, transitando entre sonoridades vibrantes y luminosas hasta atmósferas densas y oscuras. Composiciones que abordan la pérdida y la decepción con una carga emocional profunda.</p>
+      <p class="session-desc desktop-text">Rock alternativo e indie fusionado con matices de J-rock, transitando entre sonoridades vibrantes y luminosas hasta atmósferas densas y oscuras. Composiciones que abordan la pérdida y la decepción con una carga emocional profunda.</p><p class="session-desc mobile-text">Rock alternativo e indie con matices de J-rock. Composiciones que abordan la pérdida y la decepción con carga emocional profunda.</p>
       <p class="session-meta">Febrero 2026 · 18 min</p>
     </div>
     <a href="https://youtu.be/c-_c0FKq5ao" target="_blank" class="session-video">
-      <img src="images/sessions/desktop/sessions-1.webp" srcset="images/sessions/mobile/sessions-1.webp 750w, images/sessions/desktop/sessions-1.webp 1440w" sizes="(max-width: 768px) 100vw, 720px" alt="Darker Sessions: Industrial Park">
+      <img src="Session 1.jpg" alt="Darker Sessions: Industrial Park">
       <div class="play-btn"><svg viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24L27 14v20" fill="#fff"/></svg></div>
     </a>
   </div>
@@ -459,13 +462,13 @@ body.dark {
   <!-- ROW 2: video left + light info right -->
   <div class="session-row reverse">
     <a href="https://youtu.be/Av64sMUsa3E" target="_blank" class="session-video">
-      <img src="images/sessions/desktop/sessions-2.webp" srcset="images/sessions/mobile/sessions-2.webp 750w, images/sessions/desktop/sessions-2.webp 1440w" sizes="(max-width: 768px) 100vw, 720px" alt="Darker Sessions: Sueño Neón">
+      <img src="Session 2.jpg" alt="Darker Sessions: Sueño Neón">
       <div class="play-btn"><svg viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24L27 14v20" fill="#fff"/></svg></div>
     </a>
     <div class="session-info light">
       <p class="session-tag">Darker Sessions · Sueño Neón</p>
       <h2 class="session-title">Libre, camaleónico y sin fronteras.</h2>
-      <p class="session-desc">Un universo sonoro donde conviven el hard rock, las baladas y ritmos tropicales en armonía inesperada. Una sesión tan colorida como su música, llena de matices y contrastes visuales que no teme mezclar géneros ni emociones.</p>
+      <p class="session-desc desktop-text">Un universo sonoro donde conviven el hard rock, las baladas y ritmos tropicales en armonía inesperada. Una sesión tan colorida como su música, llena de matices y contrastes visuales que no teme mezclar géneros ni emociones.</p><p class="session-desc mobile-text">Hard rock, baladas y ritmos tropicales en armonía inesperada. Una sesión tan colorida como su música.</p>
       <p class="session-meta">Octubre 2025 · 34 min</p>
     </div>
   </div>
@@ -475,7 +478,7 @@ body.dark {
     <div class="session-info dark">
       <p class="session-tag">Darker Sessions · Gin Xan</p>
       <h2 class="session-title">Sinceridad en estado puro.</h2>
-      <p class="session-desc">Tres temas que capturan la energía y la emocionalidad sin adornos. Una sesión cruda, directa, y con la honestidad que solo se logra cuando no hay nada que esconder.</p>
+      <p class="session-desc desktop-text">Tres temas que capturan la energía y la emocionalidad sin adornos. Una sesión cruda, directa, y con la honestidad que solo se logra cuando no hay nada que esconder.</p><p class="session-desc mobile-text">Energía y emocionalidad sin adornos. Cruda, directa, con honestidad pura.</p>
       <p class="session-meta">Septiembre 2025 · 10 min</p>
     </div>
     <a href="https://youtu.be/oJYBLTpMyiQ" target="_blank" class="session-video">
@@ -487,13 +490,13 @@ body.dark {
   <!-- ROW 4: video left + light info right (same as row 2) -->
   <div class="session-row reverse">
     <a href="https://youtu.be/e22W3GknpdY" target="_blank" class="session-video">
-      <img src="images/sessions/desktop/sessions-4.webp" srcset="images/sessions/mobile/sessions-4.webp 750w, images/sessions/desktop/sessions-4.webp 1440w" sizes="(max-width: 768px) 100vw, 720px" alt="Darker Sessions: Los Flukers">
+      <img src="Session 4.jpg" alt="Darker Sessions: Los Flukers">
       <div class="play-btn"><svg viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24L27 14v20" fill="#fff"/></svg></div>
     </a>
     <div class="session-info light">
       <p class="session-tag">Darker Sessions · Los Flukers</p>
       <h2 class="session-title">Donde todo empezó.</h2>
-      <p class="session-desc">El primer episodio de Darker Sessions. Actitud y energía que no se guarda nada, desde la habitación oscura del estudio. Solo música real, ejecutada en vivo, sin filtros ni pretensiones.</p>
+      <p class="session-desc desktop-text">El primer episodio de Darker Sessions. Actitud y energía que no se guarda nada, desde la habitación oscura del estudio. Solo música real, ejecutada en vivo, sin filtros ni pretensiones.</p><p class="session-desc mobile-text">El primer episodio. Actitud y energía desde la habitación oscura del estudio. Música real, sin filtros.</p>
       <p class="session-meta">Julio 2025 · 16 min</p>
     </div>
   </div>
