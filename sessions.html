@@ -10,6 +10,10 @@ body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background: #fff;
   overflow-x: hidden;
+  transition: background 0.5s ease;
+}
+body.dark {
+  background: #1b1b1f;
 }
 
 /* ── HEADER ── */
@@ -82,10 +86,21 @@ body {
   height: 25vh; min-height: 140px;
   padding-top: 64px;
   display: flex; align-items: center; justify-content: center;
+  background: #f5f5f7;
+  transition: background 0.5s ease;
 }
-#hero h1 {
-  font-weight: 700; font-size: clamp(48px, 7vw, 96px);
-  letter-spacing: -3px; color: #111; line-height: 1;
+#hero-wrap.dark {
+  background: #1b1b1f;
+}
+#hero-wrap.dark #hero img {
+  filter: none;
+  mix-blend-mode: screen;
+}
+#hero img {
+  width: clamp(320px, 45vw, 600px);
+  height: auto; display: block;
+  filter: invert(1);
+  mix-blend-mode: multiply;
 }
 
 /* ── FLOATING PILL ── */
@@ -96,16 +111,16 @@ body {
   display: flex; align-items: center; justify-content: space-between;
   gap: 24px; padding: 5px 5px 5px 22px;
   border-radius: 999px;
-  width: clamp(280px, 36vw, 480px);
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  width: clamp(340px, 42vw, 540px);
+  background: rgba(255,255,255,0.58);
+  backdrop-filter: blur(32px) saturate(1.8);
+  -webkit-backdrop-filter: blur(32px) saturate(1.8);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.9),
+    inset 0 1px 0 rgba(255,255,255,0.6),
     0 4px 16px rgba(0,0,0,0.10),
     0 16px 40px rgba(0,0,0,0.10),
     0 32px 64px rgba(0,0,0,0.06);
-  border: 0.5px solid rgba(200,210,220,0.6);
+  border: 0.5px solid rgba(255,255,255,0.5);
   transition:
     opacity 0.55s cubic-bezier(0.23,1,0.32,1),
     transform 0.6s cubic-bezier(0.23,1,0.32,1),
@@ -120,24 +135,84 @@ body {
   font-weight: 700; font-size: 16px; letter-spacing: -0.5px;
   color: #111; white-space: nowrap;
 }
-#pill-btn {
+.pill-btn-primary {
+  height: 36px;
   background: #0057FF; color: #fff; border: none;
-  border-radius: 999px; padding: 9px 20px;
+  border-radius: 999px; padding: 0 20px;
   font-size: 13px; font-weight: 500; letter-spacing: -0.1px;
   cursor: pointer; white-space: nowrap;
   transition: background 0.2s ease, transform 0.15s ease;
   box-shadow: 0 2px 8px rgba(0,87,255,0.35);
 }
-#pill-btn:hover { background: #3375FF; transform: scale(1.03); }
+.pill-btn-primary:hover { background: #3375FF; transform: scale(1.03); }
+.pill-btns {
+  display: flex; align-items: center; gap: 6px;
+}
+.pill-btn-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 100%);
+  border: 1px solid rgba(0,0,0,0.12);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    inset 0 -1px 2px rgba(0,0,0,0.04),
+    0 1px 3px rgba(0,0,0,0.06);
+}
+.pill-btn-icon:hover {
+  transform: scale(1.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    inset 0 -1px 2px rgba(0,0,0,0.04),
+    0 2px 5px rgba(0,0,0,0.08);
+}
+.pill-btn-icon svg { width: 14px; height: 14px; fill: #111; }
+
+/* ── CONCEPT SECTION ── */
+#concept {
+  padding: 36px 40px 36px;
+  background: #f5f5f7;
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+  transition: background 0.5s ease;
+}
+#concept h2 {
+  font-weight: 700;
+  font-size: clamp(32px, 4vw, 52px);
+  letter-spacing: -2px; line-height: 1.05;
+  color: #111; margin-bottom: 14px;
+  max-width: 75%;
+  transition: color 0.5s ease;
+}
+#concept h2 span { color: #0057FF; }
+#concept p {
+  font-size: 15px; line-height: 1.7;
+  color: #555;
+  max-width: 70%;
+  transition: color 0.5s ease;
+}
+#concept.dark {
+  background: #1b1b1f;
+}
+#concept.dark h2 { color: #fff; }
+#concept.dark h2 span { color: #0057FF; }
+#concept.dark p { color: #999; }
+.concept-btns {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 20px;
+}
 
 /* ── SESSIONS GRID ── */
 #sessions {
-  padding: 40px 40px 80px;
+  padding: 0 40px 25px;
   display: flex; flex-direction: column; gap: 25px;
-  background: #fff;
+  background: #f5f5f7;
   transition: background 0.5s ease;
 }
-#sessions.dark { background: #1a1a1a; }
+#sessions.dark { background: #1b1b1f; }
 .session-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -156,7 +231,7 @@ body {
   border-radius: 0 16px 16px 0;
 }
 .session-info.dark {
-  background: #333338; color: #fff;
+  background: #2a2a2e; color: #fff;
 }
 .session-info.light {
   background: #ededf0; color: #111;
@@ -212,7 +287,12 @@ body {
 }
 
 /* ── FOOTER ── */
-#footer { background: #eceef0; padding: 48px 60px 32px; text-align: center; }
+#footer { background: #eceef0; padding: 48px 60px 32px; text-align: center; transition: background 0.5s ease; }
+#footer.dark { background: #111; }
+#footer.dark .footer-socials a { color: #666; }
+#footer.dark .footer-socials svg { fill: #666; }
+#footer.dark .footer-links a { color: #999; }
+#footer.dark .footer-copy { color: #555; }
 .footer-socials { display: flex; justify-content: center; align-items: center; gap: 28px; margin-bottom: 28px; }
 .footer-socials a { color: #777; transition: opacity 0.2s ease; display: flex; align-items: center; }
 .footer-socials a:hover { opacity: 0.4; }
@@ -264,9 +344,9 @@ body {
   }
 
   #hero-wrap { height: 20vh; min-height: 110px; }
-  #hero h1 { font-size: clamp(36px, 9vw, 52px); letter-spacing: -1.5px; }
+  #hero img { width: clamp(260px, 75vw, 360px); height: auto; }
 
-  #pill { width: clamp(260px, 80vw, 360px); top: 72px; }
+  #pill { width: clamp(340px, 92vw, 420px); top: 72px; }
 
   #sessions { padding: 20px 16px 60px; gap: 20px; }
   .session-row {
@@ -295,6 +375,10 @@ body {
   .session-meta { font-size: 10px; margin-top: 16px; }
   .session-video { height: 200px; min-height: 200px; }
   .session-video img { object-fit: cover; }
+
+  #concept { padding: 50px 24px 40px; }
+  #concept h2 { font-size: clamp(24px, 7vw, 32px); letter-spacing: -1px; max-width: 90%; }
+  #concept p { font-size: 13px; line-height: 1.6; max-width: 90%; }
 
   #footer { padding: 40px 24px 28px; }
   .footer-socials { gap: 20px; flex-wrap: wrap; }
@@ -334,12 +418,26 @@ body {
 </div>
 
 <div id="hero-wrap">
-  <section id="hero"><h1>Sessions</h1></section>
+  <section id="hero"><img src="Sessions_Logo_Transparent.PNG" alt="Darker Sessions"></section>
 </div>
 
 <div id="pill">
   <span id="pill-title">Sessions</span>
-  <button id="pill-btn">Ver todas</button>
+  <div class="pill-btns">
+    <a href="#" class="pill-btn-icon" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+    <a href="https://www.youtube.com/@darkerproject" target="_blank" class="pill-btn-icon" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
+    <button class="pill-btn-primary">Ver precios</button>
+  </div>
+</div>
+
+<div id="concept">
+  <h2>Menos como producto. <span>Más arte.</span></h2>
+  <p>En un mundo donde la música quedó en segundo plano, creamos un espacio donde es tratada como lo que realmente es: sincera, real, con respeto y descubrimiento. Un hogar tanto para los grandes artistas como para quienes crean desde sus habitaciones, y les brinde un lugar para conectar con su audiencia.</p>
+  <div class="concept-btns">
+    <a href="#" class="pill-btn-icon" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+    <a href="https://www.youtube.com/@darkerproject" target="_blank" class="pill-btn-icon" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
+    <button class="pill-btn-primary">Ver precios</button>
+  </div>
 </div>
 
 <div id="sessions">
@@ -431,17 +529,24 @@ var hero = document.getElementById('hero');
 var headerEl = document.getElementById('header');
 var sessionsEl = document.getElementById('sessions');
 var navEl = document.getElementById('nav-overlay');
+var heroWrap = document.getElementById('hero-wrap');
+var conceptEl = document.getElementById('concept');
+var footerEl = document.getElementById('footer');
 
-var pillObserver = new IntersectionObserver(function(entries) {
-  entries.forEach(function(entry) {
-    var dark = !entry.isIntersecting;
-    pill.classList.toggle('visible', dark);
-    headerEl.classList.toggle('dark', dark);
-    sessionsEl.classList.toggle('dark', dark);
-    navEl.classList.toggle('dark', dark);
-  });
-}, { threshold: 0.1 });
-pillObserver.observe(hero);
+function checkDarkMode() {
+  var rect = sessionsEl.getBoundingClientRect();
+  var dark = rect.top <= 64;
+  pill.classList.toggle('visible', dark);
+  headerEl.classList.toggle('dark', dark);
+  sessionsEl.classList.toggle('dark', dark);
+  navEl.classList.toggle('dark', dark);
+  document.body.classList.toggle('dark', dark);
+  heroWrap.classList.toggle('dark', dark);
+  conceptEl.classList.toggle('dark', dark);
+  footerEl.classList.toggle('dark', dark);
+}
+window.addEventListener('scroll', checkDarkMode, { passive: true });
+checkDarkMode();
 
 /* ── MOBILE CAROUSEL ── */
 ;(function() {
