@@ -346,7 +346,10 @@ body.dark {
     font: 500 14px/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: #111; text-decoration: none; white-space: nowrap; letter-spacing: -0.1px;
     will-change: transform, opacity;
+    transition: color 0.4s ease;
   }
+  body.dark .mc-lbl { color: #fff; }
+  body.dark .mc-arrow svg path { stroke: #fff; }
 
   #hero-wrap { height: 20vh; min-height: 110px; }
   #hero img { width: clamp(200px, 55vw, 280px); height: auto; }
