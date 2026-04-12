@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artistas — Darker Project</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: #fff; overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+#header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 64px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 44px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border-bottom: 0.5px solid rgba(255,255,255,0.5);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255,255,255,0.95),
+    0 1px 0 rgba(0,0,0,0.04),
+    0 4px 24px rgba(0,0,0,0.05);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.logo { color: #000; text-decoration: none; display: flex; align-items: center; z-index: 102; position: relative; }
+#logo-img { height: 34px; width: auto; display: block; filter: brightness(0); }
+
+#hamburger {
+  background: none; border: none; cursor: pointer;
+  width: 34px; height: 22px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  z-index: 102; position: relative; padding: 0;
+}
+#hamburger span {
+  display: block; width: 100%; height: 2px; background: #000;
+  border-radius: 1px; transform-origin: center;
+  transition: transform 0.45s cubic-bezier(0.23,1,0.32,1), opacity 0.3s ease;
+}
+#hamburger.open span:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+#hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+#hamburger.open span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+#nav-overlay {
+  position: fixed; top: 0; right: 110px; height: 64px; z-index: 101;
+  display: flex; align-items: center;
+  opacity: 0; pointer-events: none; transform: translateX(10px);
+  transition: opacity 0.35s cubic-bezier(0.23,1,0.32,1), transform 0.35s cubic-bezier(0.23,1,0.32,1);
+}
+#nav-overlay.open { opacity: 1; pointer-events: all; transform: translateX(0); }
+.nav-links { display: flex; gap: 24px; }
+.nav-links a {
+  font-size: 14px; font-weight: 400; color: #000;
+  text-decoration: none; letter-spacing: 0.01em;
+  opacity: 0; transform: translateX(8px);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.23,1,0.32,1), color 0.4s ease;
+}
+.nav-links a:hover { opacity: 0.45 !important; }
+#nav-overlay.open .nav-links a { opacity: 1; transform: translateX(0); }
+#nav-overlay.open .nav-links a:nth-child(1) { transition-delay:.03s; }
+#nav-overlay.open .nav-links a:nth-child(2) { transition-delay:.07s; }
+#nav-overlay.open .nav-links a:nth-child(3) { transition-delay:.11s; }
+#nav-overlay.open .nav-links a:nth-child(4) { transition-delay:.15s; }
+#nav-overlay.open .nav-links a:nth-child(5) { transition-delay:.19s; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 260px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #fff;
+  padding: 100px 24px 48px;
+  gap: 16px;
+}
+#hero h1 {
+  font-size: clamp(42px, 7vw, 72px);
+  font-weight: 700;
+  letter-spacing: -3px;
+  color: #111;
+  line-height: 1;
+  text-align: center;
+}
+#hero .subtitle {
+  font-size: clamp(13px, 1.8vw, 16px);
+  color: #555;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-align: center;
+  max-width: 600px; white-space: nowrap;
+}
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 8px;
+  width: clamp(220px, 28vw, 320px);
+}
+.search-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #0057FF;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,87,255,0.30);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.search-btn:hover { background: #3375FF; transform: scale(1.04); }
+.search-btn svg { width: 15px; height: 15px; fill: #fff; }
+.search-input {
+  flex: 1;
+  height: 36px;
+  border: 1.5px solid rgba(0,0,0,0.10);
+  border-radius: 999px;
+  padding: 0 20px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #111;
+  background: rgba(0,0,0,0.03);
+  outline: none;
+  margin-right: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.search-input::placeholder { color: #aaa; }
+.search-input:focus {
+  border-color: #0057FF;
+  box-shadow: 0 0 0 3px rgba(0,87,255,0.10);
+}
+
+/* ── ARTISTS GRID ── */
+#artists {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 28px 80px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.artist-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.04),
+    0 8px 32px rgba(0,0,0,0.06);
+  transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), box-shadow 0.35s ease;
+}
+.artist-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.06),
+    0 16px 48px rgba(0,0,0,0.10);
+}
+
+.artist-img-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+.artist-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.23,1,0.32,1);
+}
+.artist-card:hover .artist-img-wrap img {
+  transform: scale(1.04);
+}
+
+.artist-info {
+  padding: 20px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.artist-name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #111;
+}
+.artist-genre {
+  font-size: 13px;
+  color: #888;
+  letter-spacing: 0.01em;
+  margin-top: -8px;
+}
+.artist-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.artist-btn-ig {
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.08) 100%);
+  border: 1px solid rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+  text-decoration: none;
+}
+.artist-btn-ig svg { width: 17px; height: 17px; fill: #111; }
+.artist-btn-ig:hover { transform: scale(1.06); background: rgba(0,0,0,0.08); }
+
+.artist-btn-ver {
+  flex: 1;
+  height: 38px;
+  background: #0057FF; color: #fff; border: none;
+  border-radius: 999px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,87,255,0.30);
+  transition: background 0.2s ease, transform 0.15s ease;
+  text-decoration: none;
+  display: flex; align-items: center; justify-content: center;
+}
+.artist-btn-ver:hover { background: #3375FF; transform: scale(1.02); }
+
+/* ── FLOATING PILL ── */
+#pill {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px) scaleX(0.85) scaleY(0.7);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 5px 5px 20px;
+  border-radius: 999px;
+  width: clamp(280px, 38vw, 480px);
+  background: rgba(255,255,255,0.58);
+  backdrop-filter: blur(32px) saturate(1.8);
+  -webkit-backdrop-filter: blur(32px) saturate(1.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.6),
+    0 4px 16px rgba(0,0,0,0.10),
+    0 16px 40px rgba(0,0,0,0.10),
+    0 32px 64px rgba(0,0,0,0.06);
+  border: 0.5px solid rgba(255,255,255,0.5);
+  transition:
+    opacity 0.55s cubic-bezier(0.23,1,0.32,1),
+    transform 0.6s cubic-bezier(0.23,1,0.32,1),
+    border-radius 0.6s cubic-bezier(0.23,1,0.32,1),
+    box-shadow 0.55s ease;
+}
+#pill.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(-50%) translateY(0) scaleX(1) scaleY(1);
+}
+.pill-label {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700; font-size: 15px; letter-spacing: -0.4px;
+  color: #111; white-space: nowrap; flex-shrink: 0;
+}
+#pill .pill-search-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #0057FF;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,87,255,0.30);
+  transition: background 0.2s ease;
+}
+#pill .pill-search-btn:hover { background: #3375FF; }
+#pill .pill-search-btn svg { width: 15px; height: 15px; fill: #fff; }
+#pill .pill-search-input {
+  flex: 1;
+  height: 32px;
+  border: none;
+  border-radius: 999px;
+  padding: 0 16px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: #111;
+  background: transparent;
+  outline: none;
+}
+#pill .pill-search-input::placeholder { color: #999; }
+
+#artists { min-height: 60vh; }
+#no-results {
+  display: none;
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  font-size: 16px;
+  color: #999;
+  letter-spacing: -0.2px;
+}
+
+/* ── FOOTER ── */
+#footer {
+  background: #eceef0;
+  padding: 48px 60px 32px;
+  text-align: center;
+}
+.footer-socials {
+  display: flex; justify-content: center; align-items: center;
+  gap: 28px; margin-bottom: 28px;
+}
+.footer-socials a { color: #595959; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; transition: opacity 0.2s ease; display: flex; align-items: center; }
+.footer-socials a:hover { opacity: 0.4; }
+.footer-socials svg { width: 20px; height: 20px; fill: #777; }
+.footer-links {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 8px 32px; margin-bottom: 20px;
+}
+.footer-links a {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 11px; letter-spacing: 0.04em; text-transform: none;
+  color: #595959; text-decoration: none; transition: opacity 0.2s ease;
+}
+.footer-links a:hover { opacity: 0.4; }
+.footer-copy {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 11px; letter-spacing: 0.02em; color: #595959; text-transform: none;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  #header { padding: 0 20px; }
+  #hamburger { width: 22px; height: 15px; }
+  #hamburger span { height: 1.5px; }
+  #hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  #hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  #nav-overlay { display: none !important; }
+
+  #hero { min-height: 200px; padding: 80px 20px 32px; gap: 12px; }
+  #hero h1 { font-size: clamp(32px, 10vw, 48px); letter-spacing: -2px; }
+  .subtitle { font-size: 13px !important; }
+  .search-bar { width: 100%; }
+  .search-btn { width: 38px; height: 38px; }
+  .search-input { height: 38px; font-size: 13px; }
+
+  #artists {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 0 16px 48px;
+  }
+
+  .artist-card { border-radius: 14px; }
+  .artist-info { padding: 14px 14px 16px; gap: 10px; }
+  .artist-name { font-size: 15px; letter-spacing: -0.3px; }
+  .artist-genre { font-size: 11px; margin-top: -6px; }
+  .artist-btns { gap: 6px; }
+  .artist-btn-ig { width: 34px; height: 34px; }
+  .artist-btn-ig svg { width: 15px; height: 15px; }
+  .artist-btn-ver { height: 34px; font-size: 12px; }
+
+  #pill { width: clamp(280px, 88vw, 400px); top: 72px; }
+  #footer { padding: 32px 20px 24px; }
+  .footer-socials { gap: 18px; margin-bottom: 20px; }
+  .footer-links { gap: 6px 20px; margin-bottom: 14px; }
+}
+</style>
+</head>
+<body>
+
+<header id="header">
+  <a href="index.html" class="logo">
+    <img src="DP_Logo_White_Icon.png" alt="Darke Project" id="logo-img">
+  </a>
+  <button id="hamburger" aria-label="Menú"><span></span><span></span><span></span></button>
+</header>
+
+<nav id="nav-overlay">
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="studio.html">Studio</a>
+    <a href="artistas.html">Artistas</a>
+    <a href="sessions.html">Sessions</a>
+    <a href="#">KITD</a>
+  </div>
+</nav>
+
+<main>
+<section id="hero">
+  <h1>Artistas</h1>
+  <p class="subtitle">Todo proyecto que está o ha pasado por nuestras manos</p>
+  <div class="search-bar">
+    <input type="text" class="search-input" id="hero-search" placeholder="Buscar artista o proyecto..." autocomplete="off">
+    <button class="search-btn" aria-label="Buscar"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
+  </div>
+</section>
+
+<div id="pill">
+  <span class="pill-label">Artistas</span>
+  <input type="text" class="pill-search-input" id="pill-search" placeholder="Buscar..." autocomplete="off">
+  <button class="pill-search-btn" aria-label="Buscar"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
+</div>
+
+<div id="artists">
+
+<!-- OMEN NOISE -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzJiMWQwZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5PTUVOIE5PSVNFPC90ZXh0Pjwvc3ZnPg==" alt="OMEN NOISE" width="480" height="480" loading="eager">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">OMEN NOISE</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de OMEN NOISE"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Celeste Manrique -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzJlMGUxZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DZWxlc3RlIE1hbnJpcXVlPC90ZXh0Pjwvc3ZnPg==" alt="Celeste Manrique" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Celeste Manrique</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Celeste Manrique"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+<!-- Industrial Park -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFlMWUzMCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5JbmR1c3RyaWFsIFBhcms8L3RleHQ+PC9zdmc+" alt="Industrial Park" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Industrial Park</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Industrial Park"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blind Garden -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzBhMTYyOCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5CbGluZCBHYXJkZW48L3RleHQ+PC9zdmc+" alt="Blind Garden" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Blind Garden</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Blind Garden"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- La Cápsula -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFhMWEyZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MYSBDw6Fwc3VsYTwvdGV4dD48L3N2Zz4=" alt="La Cápsula" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">La Cápsula</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de La Cápsula"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kev Saav3dra -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzE2MjEzZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5LZXYgU2FhdjNkcmE8L3RleHQ+PC9zdmc+" alt="Kev Saav3dra" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Kev Saav3dra</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Kev Saav3dra"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coutards -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzBmMzQ2MCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Db3V0YXJkczwvdGV4dD48L3N2Zz4=" alt="Coutards" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Coutards</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Coutards"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Faisán Club -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFhMWExYSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5GYWlzw6FuIENsdWI8L3RleHQ+PC9zdmc+" alt="Faisán Club" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Faisán Club</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Faisán Club"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- El Club de Nadie -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzJkMmQyZCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5FbCBDbHViIGRlIE5hZGllPC90ZXh0Pjwvc3ZnPg==" alt="El Club de Nadie" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">El Club de Nadie</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de El Club de Nadie"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Losi Solórzano -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzMzMzM0NCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Mb3NpIFNvbG9yemFubzwvdGV4dD48L3N2Zz4=" alt="Losi Solórzano" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Losi Solórzano</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Losi Solórzano"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Azul de Mayo -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzBkMWIyYSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BenVsIGRlIE1heW88L3RleHQ+PC9zdmc+" alt="Azul de Mayo" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Azul de Mayo</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Azul de Mayo"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pseudomúsicos -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFiMjgzOCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Qc2V1ZG9tw7pzaWNvczwvdGV4dD48L3N2Zz4=" alt="Pseudomúsicos" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Pseudomúsicos</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Pseudomúsicos"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accidentes y Casualidades -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzJhMmEzYSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BY2NpZGVudGVzIHkgQ2FzdWFsaWRhZGVzPC90ZXh0Pjwvc3ZnPg==" alt="Accidentes y Casualidades" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Accidentes y Casualidades</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Accidentes y Casualidades"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Granizo de Mediatarde -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzEyMTIyMCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HcmFuaXpvIGRlIE1lZGlhdGFyZGU8L3RleHQ+PC9zdmc+" alt="Granizo de Mediatarde" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Granizo de Mediatarde</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Granizo de Mediatarde"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vientos Fuertes de Caída -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFjMWMyOCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5WaWVudG9zIEZ1ZXJ0ZXMgZGUgQ2HDrWRhPC90ZXh0Pjwvc3ZnPg==" alt="Vientos Fuertes de Caída" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Vientos Fuertes de Caída</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Vientos Fuertes de Caída"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demodé -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzIyMjIzNiIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EZW1vZGU8L3RleHQ+PC9zdmc+" alt="Demodé" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Demodé</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Demodé"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- elcuervo.os -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFlMWEyZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5lbGN1ZXJ2by5vczwvdGV4dD48L3N2Zz4=" alt="elcuervo.os" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">elcuervo.os</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de elcuervo.os"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+<!-- La Túnica de José -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzE4MTgyOCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MYSBUw7puaWNhIGRlIEpvc8OpPC90ZXh0Pjwvc3ZnPg==" alt="La Túnica de José" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">La Túnica de José</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de La Túnica de José"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kadupul -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFhMjYzNCIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5LYWR1cHVsPC90ZXh0Pjwvc3ZnPg==" alt="Kadupul" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Kadupul</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Kadupul"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Handy Band -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzBlMWEyNiIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5IYW5keSBCYW5kPC90ZXh0Pjwvc3ZnPg==" alt="Handy Band" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Handy Band</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Handy Band"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- eskizo -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzIwMWEyZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5lc2tpem88L3RleHQ+PC9zdmc+" alt="eskizo" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">eskizo</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de eskizo"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Electroma Band -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzE2MmUyMSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5FbGVjdHJvbWEgQmFuZDwvdGV4dD48L3N2Zz4=" alt="Electroma Band" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Electroma Band</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Electroma Band"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Los Flukers -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzJlMWExYSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Mb3MgRmx1a2VyczwvdGV4dD48L3N2Zz4=" alt="Los Flukers" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Los Flukers</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Los Flukers"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bastardos de Woodstock -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFhMmUyZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5CYXN0YXJkb3MgZGUgV29vZHN0b2NrPC90ZXh0Pjwvc3ZnPg==" alt="Bastardos de Woodstock" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Bastardos de Woodstock</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Bastardos de Woodstock"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Govindah -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzJlMmUxYSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Hb3ZpbmRhaDwvdGV4dD48L3N2Zz4=" alt="Govindah" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Govindah</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Govindah"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sueño Neón -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFlMGUyZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TdWXDsW8gTmXDs248L3RleHQ+PC9zdmc+" alt="Sueño Neón" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Sueño Neón</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Sueño Neón"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Martes -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzBlMmUxZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NYXJ0ZXM8L3RleHQ+PC9zdmc+" alt="Martes" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Martes</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Martes"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kelah the Kid -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzJlMWUwZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5LZWxhaCB0aGUgS2lkPC90ZXh0Pjwvc3ZnPg==" alt="Kelah the Kid" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Kelah the Kid</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Kelah the Kid"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gaba -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFhMWExYSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HYWJhPC90ZXh0Pjwvc3ZnPg==" alt="Gaba" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Gaba</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Gaba"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Renato Salvatore -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzBlMGUxZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5SZW5hdG8gU2FsdmF0b3JlPC90ZXh0Pjwvc3ZnPg==" alt="Renato Salvatore" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Renato Salvatore</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Renato Salvatore"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estélar -->
+  <div class="artist-card">
+    <div class="artist-img-wrap">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iNDgwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjQ4MCIgZmlsbD0iIzFlMmUwZSIvPjx0ZXh0IHg9IjI0MCIgeT0iMjUwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTIpIiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXNpemU9IjE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Fc3TDqWxhcjwvdGV4dD48L3N2Zz4=" alt="Estélar" width="480" height="480" loading="lazy">
+    </div>
+    <div class="artist-info">
+      <h3 class="artist-name">Estélar</h3>
+      <div class="artist-btns">
+        <a href="#" class="artist-btn-ig" aria-label="Instagram de Estélar"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" class="artist-btn-ver">Ver más</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="no-results">No se encontraron resultados</div>
+</div>
+</main>
+
+<footer id="footer">
+  <div class="footer-socials">
+    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+    <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
+    <a href="#" aria-label="X"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></a>
+    <a href="https://open.spotify.com/playlist/3oCCKYAqDatUc8NODyMgKH" target="_blank" aria-label="Spotify"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg></a>
+    <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+  </div>
+  <div class="footer-links">
+    <a href="#">Contacto</a>
+    <a href="#">Preguntas frecuentes</a>
+    <a href="#">Trabaja con nosotros</a>
+    <a href="#">Política de privacidad</a>
+    <a href="#">Términos de uso</a>
+  </div>
+  <p class="footer-copy">© 2026 Darker Project. Todos los derechos reservados.</p>
+</footer>
+
+<script>
+var hamburger = document.getElementById('hamburger');
+var navOverlay = document.getElementById('nav-overlay');
+var pill = document.getElementById('pill');
+var hero = document.getElementById('hero');
+
+hamburger.addEventListener('click', function() {
+  var open = hamburger.classList.toggle('open');
+  navOverlay.classList.toggle('open', open);
+});
+navOverlay.querySelectorAll('a').forEach(function(a) {
+  a.addEventListener('click', function() {
+    hamburger.classList.remove('open');
+    navOverlay.classList.remove('open');
+  });
+});
+
+// Pill appears when hero scrolls out
+function checkPill() {
+  var rect = hero.getBoundingClientRect();
+  var gone = rect.bottom <= 64;
+  pill.classList.toggle('visible', gone);
+}
+window.addEventListener('scroll', checkPill, { passive: true });
+checkPill();
+
+// Search functionality
+var heroSearch = document.getElementById('hero-search');
+var pillSearch = document.getElementById('pill-search');
+var cards = document.querySelectorAll('.artist-card');
+var noResults = document.getElementById('no-results');
+
+function normalize(str) {
+  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function filterCards(query) {
+  var q = normalize(query).trim();
+  var found = 0;
+  cards.forEach(function(card) {
+    var name = normalize(card.querySelector('.artist-name').textContent);
+    var genre = '';
+    var match = !q || name.indexOf(q) !== -1 || genre.indexOf(q) !== -1;
+    card.style.display = match ? '' : 'none';
+    if (match) found++;
+  });
+  noResults.style.display = (q && found === 0) ? 'block' : 'none';
+}
+
+function doSearch() {
+  var q = heroSearch.value || pillSearch.value;
+  heroSearch.value = q;
+  pillSearch.value = q;
+  filterCards(q);
+}
+
+document.querySelectorAll('.search-btn, .pill-search-btn').forEach(function(btn) {
+  btn.addEventListener('click', doSearch);
+});
+heroSearch.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { pillSearch.value = this.value; doSearch(); }
+});
+pillSearch.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { heroSearch.value = this.value; doSearch(); }
+});
+</script>
+</body>
+</html>
