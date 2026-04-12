@@ -582,7 +582,7 @@ lbPrev.addEventListener('click', prevLB);
 lightbox.addEventListener('click', function(e){ if(e.target===lightbox) closeLB(); });
 // Touch swipe for mobile
 var touchStartX = 0;
-lbImg.addEventListener('touchstart', function(e) {
+lbImg.addEventListener('touchstart', function(e) { if(e.touches.length > 1) return;
   touchStartX = e.touches[0].clientX;
 }, { passive: true });
 lbImg.addEventListener('touchend', function(e) {
@@ -592,7 +592,7 @@ lbImg.addEventListener('touchend', function(e) {
   }
 }, { passive: true });
 // Also allow swipe anywhere on lightbox overlay
-lightbox.addEventListener('touchstart', function(e) {
+lightbox.addEventListener('touchstart', function(e) { if(e.touches.length > 1) return;
   touchStartX = e.touches[0].clientX;
 }, { passive: true });
 lightbox.addEventListener('touchend', function(e) {
