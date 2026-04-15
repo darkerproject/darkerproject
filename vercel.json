@@ -1,6 +1,21 @@
 {
   "rewrites": [
     { "source": "/studio", "destination": "/studio.html" },
-    { "source": "/sessions", "destination": "/sessions.html" }
+    { "source": "/sessions", "destination": "/sessions.html" },
+    { "source": "/artistas", "destination": "/artistas.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
   ]
 }
