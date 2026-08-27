@@ -817,6 +817,59 @@ catItems.forEach(function(item) {
   });
 });
 
+var stickyEl = document.getElementById('sticky');
+var belowEl = document.getElementById('below');
+var autoScrollRAF = null;
+
+function cancelAutoScroll() {
+  if (autoScrollRAF) {
+    cancelAnimationFrame(autoScrollRAF);
+    autoScrollRAF = null;
+  }
+}
+
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+function autoScrollTo(targetY, duration) {
+  cancelAutoScroll();
+  var startY = window.pageYOffset;
+  var dist = targetY - startY;
+  var startTime = null;
+
+  function step(now) {
+    if (startTime === null) startTime = now;
+    var elapsed = now - startTime;
+    var t = Math.min(elapsed / duration, 1);
+    window.scrollTo(0, startY + dist * easeInOutCubic(t));
+    if (t < 1) {
+      autoScrollRAF = requestAnimationFrame(step);
+    } else {
+      autoScrollRAF = null;
+    }
+  }
+  autoScrollRAF = requestAnimationFrame(step);
+}
+
+// Cancel if user takes over
+['wheel', 'touchstart', 'keydown'].forEach(function(evt) {
+  window.addEventListener(evt, cancelAutoScroll, { passive: true });
+});
+
+stickyEl.addEventListener('click', function(e) {
+  // Ignore clicks on header, nav, or social pill
+  if (e.target.closest('#header')) return;
+  if (e.target.closest('#nav-overlay')) return;
+  if (e.target.closest('#social-pill')) return;
+  if (e.target.closest('#mc')) return;
+  // Only when still near the top of the hero
+  if (scrollP > 0.02) return;
+  var y = belowEl.getBoundingClientRect().top + window.pageYOffset;
+  autoScrollTo(y, 2000);
+});
+stickyEl.style.cursor = 'pointer';
+
 </script>
 </body>
 </html>
